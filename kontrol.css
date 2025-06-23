@@ -1,0 +1,135 @@
+* { box-sizing: border-box; }
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  background: #f0f0f0;
+}
+.sidebar {
+  width: 220px;
+  background-color: #007bff;
+  color: white;
+  padding-top: 60px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: -220px;
+  transition: left 0.3s ease;
+}
+.sidebar.open { left: 0; }
+.sidebar button {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: none;
+  border: none;
+  color: white;
+  text-align: left;
+  font-size: 1em;
+  cursor: pointer;
+}
+.sidebar button:hover, .sidebar button.active {
+  background-color: #0056b3;
+}
+.content {
+  flex-grow: 1;
+  margin-left: 0;
+  padding: 20px;
+  transition: margin-left 0.3s ease;
+}
+.content.shifted { margin-left: 220px; }
+.topbar {
+  background-color: #1abc9c;
+  color: white;
+  padding: 16px 20px;
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+.menu-toggle {
+  font-size: 25px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: white;
+  margin-right: 20px;
+}
+.topbar-home {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.3em;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 50px;
+}
+.topbar-home:hover { text-decoration: underline; }
+h2 {
+  margin-top: 70px;
+  text-align: center;
+}
+.kontrol-item {
+  background: white;
+  padding: 15px 20px;
+  margin: 20px auto;
+  border-radius: 8px;
+  box-shadow: 0 0 8px #ccc;
+  max-width: 600px;
+}
+.label {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 8px;
+  display: block;
+}
+.nilai {
+  font-size: 2em;
+  margin-bottom: 15px;
+  color: #333;
+}
+#btnToggle {
+  display: block;
+  margin: 0 auto 30px auto;
+  padding: 12px 25px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 8px;
+  background-color: #28a745;
+  color: white;
+  cursor: pointer;
+  width: 150px;
+}
+#btnToggle.off { background-color: #dc3545; }
+canvas {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #aaa;
+  width: 100% !important;
+  height: 250px !important;
+}
+.page { display: none; }
+.page.active { display: block; }
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+#btnUbahPassword {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#pesanPassword {
+  margin-top: 10px;
+  text-align: center;
+}
