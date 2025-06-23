@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contoh Website</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <!-- Top Bar -->
+<div class="top-bar">
+  <span>
+    📍 <a href="https://www.google.com/maps/place/Jl.+Ahmad+Yani,+Tlk.+Tering,+Batam" target="_blank" style="color: white; text-decoration: none;">
+      Jl. Ahmad Yani, Tlk. Tering
+    </a>
+  </span>
+  <span>
+    ☎ <a href="https://api.whatsapp.com/send/?phone=6282285673814&text&type=phone_number&app_absent=0" style="color: white; text-decoration: none;">
+      +62 822 8567 3814
+        </a>
+  </span>
+  <span>
+    ✉️ <a href="mailto:cevinbryan12@gmail.com" style="color: white; text-decoration: none;">
+      cevinbryan12@gmail.com
+    </a>
+  </span>
+</div>
+
+
+  <!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-content">
+    <img src="img/1c6e757b-1a50-47d6-8bcf-c346b2f75cbc-removebg-preview.png" alt="Logo" class="navbar-logo">
+    <ul>
+      <li><a href="index.html">Beranda</a></li>
+      <li><a href="#">Informasi</a></li>
+      <li><a href="#kevin">Tentang Kami</a></li>
+      <li><a href="login.html" class="login-btn">Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+  <div class="banner">
+  <img src="download-removebg-preview (1).png" alt="Banner1" class="banner-img active">
+  <img src="img/INSTRUMENTASI-removebg-preview.png" alt="Banner2" class="banner-img">
+   <img src="img/HME GROUND BACK OK.gif" alt="Banner3" class="banner-img">
+</div>
+
+<section class="berita">
+  <h2>Berita</h2>
+  <div class="berita-container">
+    <div class="berita-item">
+      <img src="img/ilustrasi-arus-listrik-rumah-1_169.jpeg" alt="Berita 1">
+      <h3>7 Kebiasaan Sepele Ini Bikin Listrik di Rumah Boros</h3>
+      <a href="https://www.detik.com/properti/berita/d-7433612/7-kebiasaan-sepele-ini-bikin-listrik-di-rumah-boros#google_vignette" target="_blank" class="btn">Baca Selengkapnya</a>
+    </div>
+    <div class="berita-item">
+      <img src="img/27887904199-screenshot_2024-09-06_172456.png" alt="Berita 2">
+      <h3>Ini Tips Kurangi Resiko Konslet Saklar di Rumah</h3>
+      <a href="https://listrikindonesia.com/detail/14067/ini-tips-kurangi-resiko-konslet-saklar-di-rumah" target="_blank" class="btn">Baca Selengkapnya</a>
+    </div>
+    <div class="berita-item">
+      <img src="img/public-214.jpg" alt="Berita 3">
+      <h3>7 Keunggulan Saklar Lampu Pintar Smart Home</h3>
+      <a href="https://datapost.id/7-keunggulan-saklar-lampu-pintar-smart-home-dibandingkan-saklar-lampu-konvensional/" target="_blank" class="btn">Baca Selengkapnya</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer" id="kevin">
+  <div class="footer-content">
+    <div class="footer-section">
+      <h3>Tentang Kami</h3>
+      <p> Project <strong>Penekan Saklar Otomatis</strong> ini dikembangkan untuk memberikan solusi 
+    praktis dalam mengotomatisasi pengoperasian saklar listrik. Dengan teknologi sensor dan 
+    mekanisme presisi, alat ini memudahkan pengguna dalam mengontrol perangkat listrik tanpa 
+    harus menekan saklar secara manual. Kami berkomitmen menghadirkan inovasi yang dapat 
+    meningkatkan kenyamanan dan efisiensi dalam kehidupan sehari-hari.
+      </p>
+    </div>
+    <div class="footer-section">
+  <h3>Lokasi</h3>
+  <p>
+    <a href="https://www.google.com/maps/place/Jl.+Ahmad+Yani,+Tlk.+Tering,+Batam" target="_blank" style="color: white; text-decoration: none;">
+      Jl. Ahmad Yani, Tlk. Tering,<br>Kota Batam, Kepulauan Riau
+    </a>
+  </p>
+  <img src="img/Screenshot 2025-06-02 101559.png" alt="Peta Lokasi" style="width: 100%; max-width: 200px; border-radius: 8px; margin-top: 10px;">
+</div>
+<div class="footer-section">
+  <h3>Kontak Kami</h3>
+  <p>
+    ☎ +62 822-8567-3814<br>
+    ✉️ <a href="https://mail.google.com/mail/u/0/#inbo" style="color: white; text-decoration: none;">
+      cevinbryan12@gmail.com
+    </a>
+  </p>
+</div>
+
+  </div>
+  <div class="footer-bottom">
+    &copy; 2025 CevinTech. All rights reserved.
+  </div>
+</footer>
+
+
+  <script>
+  let currentIndex = 0;
+  const images = document.querySelectorAll('.banner-img');
+
+  setInterval(() => {
+    images[currentIndex].classList.remove('active');
+    currentIndex = (currentIndex + 1) % images.length;
+    images[currentIndex].classList.add('active');
+  }, 4000); // Ganti gambar setiap 4 detik
+</script>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kontrol Relay - Firebase</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+    .sidebar {
+      width: 220px;
+      background-color: #007bff;
+      color: white;
+      padding-top: 60px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: -220px;
+      transition: left 0.3s ease;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      background: none;
+      border: none;
+      color: white;
+      text-align: left;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .sidebar button:hover, .sidebar button.active {
+      background-color: #0056b3;
+    }
+    .content {
+      flex-grow: 1;
+      margin-left: 0;
+      padding: 20px;
+      transition: margin-left 0.3s ease;
+    }
+    .content.shifted { margin-left: 220px; }
+    .topbar {
+      background-color: #1abc9c;
+      color: white;
+      padding: 16px 20px;
+      position: fixed;
+      width: 100%;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+    }
+    .menu-toggle {
+      font-size: 25px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+      margin-right: 20px;
+    }
+    .topbar-home {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.3em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: auto;
+      margin-right: 50px;
+    }
+    .topbar-home:hover { text-decoration: underline; }
+    h2 {
+      margin-top: 70px;
+      text-align: center;
+    }
+    .kontrol-item {
+      background: white;
+      padding: 15px 20px;
+      margin: 20px auto;
+      border-radius: 8px;
+      box-shadow: 0 0 8px #ccc;
+      max-width: 600px;
+    }
+    .label {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .nilai {
+      font-size: 2em;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    #btnToggle {
+      display: block;
+      margin: 0 auto 30px auto;
+      padding: 12px 25px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 8px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      width: 150px;
+    }
+    #btnToggle.off { background-color: #dc3545; }
+    canvas {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px #aaa;
+      width: 100% !important;
+      height: 250px !important;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    #btnUbahPassword {
+      width: 100%;
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #pesanPassword {
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <button id="navHome" class="active">🏠 Home</button>
+    <button id="navSetting">⚙️ Setting</button>
+    <button id="navLogout">🚪 Logout</button>
+  </div>
+
+  <!-- Konten Utama -->
+  <div class="content" id="mainContent">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <button class="topbar-home" id="topbarHome">🏠 Beranda</button>
+    </div>
+
+    <!-- Halaman Home -->
+    <div id="pageHome" class="page active">
+      <h2>Halaman</h2>
+      <button id="btnToggle">ON</button>
+
+      <div class="kontrol-item">
+        <span class="label">Nilai Arus (A)</span>
+        <span class="nilai" id="nilaiArus">0.00</span>
+        <canvas id="chartArus"></canvas>
+      </div>
+
+      <div class="kontrol-item">
+        <span class="label">Nilai Tegangan (V)</span>
+        <span class="nilai" id="nilaiTegangan">0.00</span>
+        <canvas id="chartTegangan"></canvas>
+      </div>
+    </div>
+
+    <!-- Halaman Setting -->
+    <div id="pageSetting" class="page">
+      <h2>Pengaturan</h2>
+      <div class="kontrol-item">
+        <span class="label">Ubah Password</span>
+        <input type="password" id="Password Lama" placeholder="Password lama" />
+        <input type="password" id="Password Baru" placeholder="Password baru" />
+        <input type="password" id="Konfirmasi Password Baru" placeholder="Konfirmasi Password Baru" />
+        <button id="btnUbahPassword">Ubah Password</button>
+        <p id="pesanPassword"></p>
+      </div>
+    </div>
+
+    <!-- Halaman Logout -->
+    <div id="pageLogout" class="page">
+      <h2>Logout</h2>
+      <p>Anda telah logout. Terima kasih!</p>
+    </div>
+  </div>
+
+  <script>
+    // Firebase Konfigurasi
+    const firebaseConfig = {
+      apiKey: "AIzaSyBfwaUBVgNkNexSdiUrU2HfLUlE_4jW0w4",
+      authDomain: "penekan-saklar-otomatis.firebaseapp.com",
+      databaseURL: "https://penekan-saklar-otomatis-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "penekan-saklar-otomatis",
+      storageBucket: "penekan-saklar-otomatis.appspot.com",
+      messagingSenderId: "75189026968",
+      appId: "1:75189026968:web:51497f22927018774310ed",
+      measurementId: "G-MJSCD8E7DV"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const nilaiArusElem = document.getElementById('nilaiArus');
+    const nilaiTeganganElem = document.getElementById('nilaiTegangan');
+    const btnToggle = document.getElementById('btnToggle');
+    const maxDataPoints = 30;
+
+    // Chart Arus
+    const ctxArus = document.getElementById('chartArus').getContext('2d');
+    const dataArus = {
+      labels: Array(maxDataPoints).fill(''),
+      datasets: [{
+        label: 'Arus (A)',
+        borderColor: 'rgb(54, 162, 235)',
+        backgroundColor: 'rgba(54, 162, 235, 0.3)',
+        data: Array(maxDataPoints).fill(0),
+        tension: 0.3,
+        fill: true,
+      }]
+    };
+    const chartArus = new Chart(ctxArus, { type: 'line', data: dataArus, options: { animation: false, scales: { y: { beginAtZero: true, max: 10 } } } });
+
+    // Chart Tegangan
+    const ctxTegangan = document.getElementById('chartTegangan').getContext('2d');
+    const dataTegangan = {
+      labels: Array(maxDataPoints).fill(''),
+      datasets: [{
+        label: 'Tegangan (V)',
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.3)',
+        data: Array(maxDataPoints).fill(0),
+        tension: 0.3,
+        fill: true,
+      }]
+    };
+    const chartTegangan = new Chart(ctxTegangan, { type: 'line', data: dataTegangan, options: { animation: false, scales: { y: { beginAtZero: true, max: 250 } } } });
+
+    function listenToFirebase() {
+      db.ref().on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) return;
+
+        const arus = parseFloat((data.ARUS || "0").replace(",", ".")) || 0;
+        const tegangan = parseFloat((data.tegangan || "0").replace(",", ".")) || 0;
+
+        nilaiArusElem.textContent = arus.toFixed(2);
+        nilaiTeganganElem.textContent = tegangan.toFixed(2);
+
+        const waktu = new Date().toLocaleTimeString();
+
+        if (dataArus.labels.length >= maxDataPoints) {
+          dataArus.labels.shift();
+          dataArus.datasets[0].data.shift();
+        }
+        dataArus.labels.push(waktu);
+        dataArus.datasets[0].data.push(arus);
+        chartArus.update();
+
+        if (dataTegangan.labels.length >= maxDataPoints) {
+          dataTegangan.labels.shift();
+          dataTegangan.datasets[0].data.shift();
+        }
+        dataTegangan.labels.push(waktu);
+        dataTegangan.datasets[0].data.push(tegangan);
+        chartTegangan.update();
+
+        const tombolStatus = data.tombol || "OFF";
+        btnToggle.textContent = tombolStatus;
+        btnToggle.classList.toggle("off", tombolStatus === "OFF");
+      });
+    }
+
+    btnToggle.addEventListener('click', () => {
+      const statusSekarang = btnToggle.classList.contains('off') ? 'OFF' : 'ON';
+      const statusBaru = statusSekarang === 'ON' ? 'OFF' : 'ON';
+      db.ref("tombol").set(statusBaru);
+    });
+
+    listenToFirebase();
+
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const mainContent = document.getElementById('mainContent');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      mainContent.classList.toggle('shifted');
+    });
+
+    // Navigasi antar halaman
+    const pages = {
+      Home: document.getElementById('pageHome'),
+      Setting: document.getElementById('pageSetting'),
+      Logout: document.getElementById('pageLogout')
+    };
+    const navButtons = {
+      Home: document.getElementById('navHome'),
+      Setting: document.getElementById('navSetting'),
+      Logout: document.getElementById('navLogout')
+    };
+
+    function showPage(page) {
+      Object.keys(pages).forEach(p => {
+        pages[p].classList.remove('active');
+        navButtons[p].classList.remove('active');
+      });
+      pages[page].classList.add('active');
+      navButtons[page].classList.add('active');
+      sidebar.classList.remove('open');
+      mainContent.classList.remove('shifted');
+    }
+
+    navButtons.Home.addEventListener('click', () => showPage('Home'));
+    navButtons.Setting.addEventListener('click', () => showPage('Setting'));
+    navButtons.Logout.addEventListener('click', () => {
+    firebase.auth().signOut().then(() => {
+    window.location.href = 'login.html'; // Redirect ke halaman login
+  }).catch((error) => {
+    alert("Gagal logout: " + error.message);
+  });
+});
+
+
+    document.getElementById('topbarHome').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // Ubah Password
+    document.getElementById('btnUbahPassword').addEventListener('click', () => {
+      const lama = document.getElementById('passwordLama').value;
+      const baru = document.getElementById('passwordBaru').value;
+      const pesan = document.getElementById('pesanPassword');
+
+      db.ref("pengaturan/password").once("value").then(snapshot => {
+        const currentPassword = snapshot.val() || "";
+
+        if (lama === currentPassword) {
+          db.ref("pengaturan/password").set(baru)
+            .then(() => {
+              pesan.textContent = "Password berhasil diubah.";
+              pesan.style.color = "green";
+            })
+            .catch(() => {
+              pesan.textContent = "Gagal mengubah password.";
+              pesan.style.color = "red";
+            });
+        } else {
+          pesan.textContent = "Password lama salah!";
+          pesan.style.color = "red";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
