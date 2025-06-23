@@ -1,4 +1,4 @@
-// Firebase Konfigurasi
+// ==== Inisialisasi Firebase ====
 const firebaseConfig = {
   apiKey: "AIzaSyChanXgxaGPzSSv_zML9iAcldjdot5aIsQ",
   authDomain: "smart-switch-pblin2024.firebaseapp.com",
@@ -12,13 +12,13 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Elemen-elemen
+// ==== Element DOM ====
 const btnToggle = document.getElementById('btnToggle');
 const nilaiArusElem = document.getElementById('nilaiArus');
 const nilaiTeganganElem = document.getElementById('nilaiTegangan');
 const maxDataPoints = 30;
 
-// Chart Arus
+// ==== Chart.js - Arus ====
 const ctxArus = document.getElementById('chartArus').getContext('2d');
 const chartArus = new Chart(ctxArus, {
   type: 'line',
@@ -39,7 +39,7 @@ const chartArus = new Chart(ctxArus, {
   }
 });
 
-// Chart Tegangan
+// ==== Chart.js - Tegangan ====
 const ctxTegangan = document.getElementById('chartTegangan').getContext('2d');
 const chartTegangan = new Chart(ctxTegangan, {
   type: 'line',
@@ -70,7 +70,7 @@ function updateChart(chart, label, value) {
   chart.update();
 }
 
-// Realtime Listener
+// ==== Realtime Data Firebase ====
 function listenToFirebase() {
   db.ref().on('value', (snapshot) => {
     const data = snapshot.val();
@@ -92,7 +92,7 @@ function listenToFirebase() {
   });
 }
 
-// Tombol ON/OFF
+// ==== Tombol ON/OFF ====
 btnToggle.addEventListener('click', () => {
   const statusSekarang = btnToggle.classList.contains("off") ? "OFF" : "ON";
   const statusBaru = statusSekarang === "ON" ? "OFF" : "ON";
@@ -101,7 +101,7 @@ btnToggle.addEventListener('click', () => {
 
 listenToFirebase();
 
-// Sidebar toggle
+// ==== Sidebar & Navigasi ====
 const sidebar = document.getElementById("sidebar");
 const menuToggle = document.getElementById("menuToggle");
 const mainContent = document.getElementById("mainContent");
@@ -111,7 +111,6 @@ menuToggle.addEventListener("click", () => {
   mainContent.classList.toggle("shifted");
 });
 
-// Navigasi
 const pages = {
   Home: document.getElementById("pageHome"),
   Setting: document.getElementById("pageSetting"),
@@ -148,35 +147,50 @@ document.getElementById("topbarHome").addEventListener("click", () => {
   window.location.href = "kontrol.html";
 });
 
-// Ubah Password
-document.getElementById("btnUbahPassword").addEventListener("click", () => {
-  const lama = document.getElementById("passwordLama").value;
-  const baru = document.getElementById("passwordBaru").value;
-  const konfirmasi = document.getElementById("konfirmasiPasswordBaru").value;
-  const pesan = document.getElementById("pesanPassword");
+// ==== Ubah Password Firebase Auth ====
+document.getElementById('btnUbahPassword').addEventListener('click', function () {
+  const passwordLama = document.getElementById('passwordLama').value;
+  const passwordBaru = document.getElementById('passwordBaru').value;
+  const konfirmasiPasswordBaru = document.getElementById('konfirmasiPasswordBaru').value;
+  const pesanPassword = document.getElementById('pesanPassword');
 
-  if (baru !== konfirmasi) {
-    pesan.textContent = "Konfirmasi password tidak cocok!";
-    pesan.style.color = "red";
+  pesanPassword.textContent = '';
+  pesanPassword.style.color = 'red';
+
+  if (!passwordLama || !passwordBaru || !konfirmasiPasswordBaru) {
+    pesanPassword.textContent = 'Semua kolom harus diisi.';
     return;
   }
 
-  db.ref("pengaturan/password").once("value").then(snapshot => {
-    const currentPassword = snapshot.val() || "";
+  if (passwordBaru !== konfirmasiPasswordBaru) {
+    pesanPassword.textContent = 'Password baru dan konfirmasi tidak cocok.';
+    return;
+  }
 
-    if (lama === currentPassword) {
-      db.ref("pengaturan/password").set(baru)
-        .then(() => {
-          pesan.textContent = "Password berhasil diubah.";
-          pesan.style.color = "green";
-        })
-        .catch(() => {
-          pesan.textContent = "Gagal mengubah password.";
-          pesan.style.color = "red";
-        });
-    } else {
-      pesan.textContent = "Password lama salah!";
-      pesan.style.color = "red";
-    }
-  });
+  const user = firebase.auth().currentUser;
+
+  if (user) {
+    const credential = firebase.auth.EmailAuthProvider.credential(user.email, passwordLama);
+    user.reauthenticateWithCredential(credential)
+      .then(() => user.updatePassword(passwordBaru))
+      .then(() => {
+        pesanPassword.style.color = 'green';
+        pesanPassword.textContent = 'Password berhasil diubah.';
+        document.getElementById('passwordLama').value = '';
+        document.getElementById('passwordBaru').value = '';
+        document.getElementById('konfirmasiPasswordBaru').value = '';
+      })
+      .catch((error) => {
+        console.error(error);
+        if (error.code === 'auth/wrong-password') {
+          pesanPassword.textContent = 'Password lama salah.';
+        } else if (error.code === 'auth/weak-password') {
+          pesanPassword.textContent = 'Password baru terlalu lemah (minimal 6 karakter).';
+        } else {
+          pesanPassword.textContent = 'Terjadi kesalahan: ' + error.message;
+        }
+      });
+  } else {
+    pesanPassword.textContent = 'Tidak ada pengguna yang login.';
+  }
 });
