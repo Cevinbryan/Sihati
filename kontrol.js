@@ -1,12 +1,12 @@
 // ==== Inisialisasi Firebase ====
 const firebaseConfig = {
-  apiKey: "AIzaSyChanXgxaGPzSSv_zML9iAcldjdot5aIsQ",
-  authDomain: "smart-switch-pblin2024.firebaseapp.com",
-  databaseURL: "https://smart-switch-pblin2024-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "smart-switch-pblin2024",
-  storageBucket: "smart-switch-pblin2024.appspot.com",
-  messagingSenderId: "267223687057",
-  appId: "1:267223687057:web:616e7c468db87c6af58430"
+  apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnqYzjYt_8kqgM",
+  authDomain: "smart-switch-pbl-in2024-db81c.firebaseapp.com",
+  projectId: "smart-switch-pbl-in2024-db81c",
+  storageBucket: "smart-switch-pbl-in2024-db81c.firebasestorage.app",
+  messagingSenderId: "145953908614",
+  appId: "1:145953908614:web:c3814666dbd2f0b4a92e07",
+  measurementId: "G-C1GM34C45L"
 };
 
 firebase.initializeApp(firebaseConfig);
