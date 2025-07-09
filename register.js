@@ -1,5 +1,4 @@
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Konfigurasi Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnqYzjYt_8kqgM",
   authDomain: "smart-switch-pbl-in2024-db81c.firebaseapp.com",
@@ -13,42 +12,43 @@ const firebaseConfig = {
 // Inisialisasi Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Tangani submit form
-document.querySelector("form").addEventListener("submit", function (e) {
-  e.preventDefault(); // Mencegah form submit secara default
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("registerForm");
 
-  // Ambil data dari form
-  const nama = document.getElementById("nama").value;
-  const email = document.getElementById("email").value;
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
-  const konfirmasi = document.getElementById("konfirmasi").value;
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  // Validasi password dan konfirmasi
-  if (password !== konfirmasi) {
-    alert("Kata sandi dan konfirmasi tidak cocok.");
-    return;
-  }
+    const nama = document.getElementById("nama").value;
+    const email = document.getElementById("email").value;
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const konfirmasi = document.getElementById("konfirmasi").value;
 
-  // Buat akun dengan Firebase Authentication
-  firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Akun berhasil dibuat
-      const user = userCredential.user;
+    if (password !== konfirmasi) {
+      alert("Kata sandi dan konfirmasi tidak cocok.");
+      return;
+    }
 
-      // Tambahkan nama dan username ke profile (opsional)
-      return user.updateProfile({
-        displayName: nama
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        const uid = user.uid;
+
+        return firebase.database().ref("akun/" + uid).set({
+          nama: nama,
+          username: username,
+          email: email,
+          uid: uid
+        }).then(() => {
+          return user.updateProfile({ displayName: nama });
+        });
+      })
+      .then(() => {
+        alert("Pendaftaran berhasil! Silakan login.");
+        window.location.href = "login.html";
+      })
+      .catch((error) => {
+        alert("Pendaftaran gagal: " + error.message);
       });
-    })
-    .then(() => {
-      // Redirect ke halaman login
-      alert("Pendaftaran berhasil! Silakan login.");
-      window.location.href = "login.html";
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      alert(`Pendaftaran gagal: ${errorMessage}`);
-    });
+  });
 });

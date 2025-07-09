@@ -4,99 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
-  <style>
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #e0f7f4;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    .login-container {
-      background-color: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #1abc9c;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #1abc9c;
-      box-shadow: 0 0 0 3px rgba(26, 188, 156, 0.2);
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #1abc9c;
-      color: white;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .login-btn:hover {
-      background-color: #16a085;
-    }
-
-    .login-footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-
-    .login-footer a {
-      color: #1abc9c;
-      text-decoration: none;
-    }
-
-    .login-footer a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="login.css" />
 </head>
 <body>
-
   <div class="login-container">
     <h2>Login</h2>
     <form id="loginForm">
       <div class="form-group">
-        <label for="username">Username atau Email</label>
-        <input type="text" id="username" name="username" required>
+        <label for="username">Email</label>
+        <input type="email" id="username" name="username" required>
       </div>
       <div class="form-group">
         <label for="password">Kata Sandi</label>
@@ -104,9 +20,17 @@
       </div>
       <button type="submit" class="login-btn">Masuk</button>
     </form>
+
+    <!-- Lupa Password -->
+    <div class="forgot-password">
+      <a href="#" id="forgotPasswordLink">Lupa kata sandi?</a>
+    </div>
+
     <div class="login-footer">
       Belum punya akun? <a href="register.html">Daftar di sini</a>
     </div>
+
+    <p id="pesan" style="text-align: center; margin-top: 10px;"></p>
   </div>
 
   <!-- Firebase SDK -->
@@ -114,42 +38,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <!-- Firebase Init + Login Script -->
-  <script>
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnqYzjYt_8kqgM",
-  authDomain: "smart-switch-pbl-in2024-db81c.firebaseapp.com",
-  projectId: "smart-switch-pbl-in2024-db81c",
-  storageBucket: "smart-switch-pbl-in2024-db81c.firebasestorage.app",
-  messagingSenderId: "145953908614",
-  appId: "1:145953908614:web:c3814666dbd2f0b4a92e07",
-  measurementId: "G-C1GM34C45L"
-};
-    // Inisialisasi Firebase
-    firebase.initializeApp(firebaseConfig);
-
-    // Event listener login
-    document.addEventListener("DOMContentLoaded", () => {
-      const loginForm = document.getElementById("loginForm");
-
-      loginForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-
-        firebase.auth().signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            // Login sukses
-            alert("Login berhasil!");
-            window.location.href = "kontrol.html";
-          })
-          .catch((error) => {
-            alert("Login gagal: " + error.message);
-          });
-      });
-    });
-  </script>
+  <!-- Firebase Init + Login Logic -->
+  <script src="login.js"></script>
 </body>
 </html>
