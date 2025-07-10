@@ -1,3 +1,4 @@
+/* === RESET DASAR === */
 * {
   box-sizing: border-box;
 }
@@ -7,7 +8,10 @@ body {
   display: flex;
   height: 100vh;
   background: #f0f0f0;
+  overflow-x: hidden;
 }
+
+/* === SIDEBAR === */
 .sidebar {
   width: 220px;
   background-color: #007bff;
@@ -18,6 +22,7 @@ body {
   bottom: 0;
   left: -220px;
   transition: left 0.3s ease;
+  z-index: 2;
 }
 .sidebar.open {
   left: 0;
@@ -37,32 +42,24 @@ body {
 .sidebar button.active {
   background-color: #0056b3;
 }
-
 .sidebar-list {
   list-style: none;
   padding: 0;
   margin: 0 0 10px 0;
 }
-
 .sidebar-list li a {
   display: block;
   padding: 10px 15px;
-  background-color: transparent;
-  border: none;
   text-decoration: none;
-  color: inherit;
-  font-size: 16px;
-  text-align: left;
-  width: 100%;
-}
-
-.sidebar-list li a:hover {
-  background-color: #007bff;
   color: white;
-  border-radius: 5px;
+  font-size: 16px;
+  border-radius: 4px;
+}
+.sidebar-list li a:hover {
+  background-color: #0056b3;
 }
 
-
+/* === KONTEN UTAMA === */
 .content {
   flex-grow: 1;
   margin-left: 0;
@@ -72,12 +69,16 @@ body {
 .content.shifted {
   margin-left: 220px;
 }
+
+/* === TOPBAR === */
 .topbar {
   background-color: #1abc9c;
   color: white;
   padding: 16px 20px;
   position: fixed;
   width: 100%;
+  top: 0;
+  left: 0;
   z-index: 1;
   display: flex;
   align-items: center;
@@ -103,17 +104,41 @@ body {
 .topbar-home:hover {
   text-decoration: underline;
 }
-h2 {
-  margin-top: 70px;
-  text-align: center;
+
+/* === HALAMAN === */
+.page {
+  display: none;
 }
+.page.active {
+  display: block;
+}
+h2 {
+  margin-top: 80px;
+  text-align: center;
+  font-size: 24px;
+  color: #333;
+}
+
+/* === GRID UNTUK 4 KONTROL ITEM (2 KIRI 2 KANAN) === */
+.grid-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+.grid-item {
+  flex: 1 1 45%;
+  min-width: 280px;
+}
+
+/* === KONTROL ITEM (CHART) === */
 .kontrol-item {
   background: white;
   padding: 15px 20px;
-  margin: 20px auto;
+  margin: 10px auto;
   border-radius: 8px;
   box-shadow: 0 0 8px #ccc;
-  max-width: 600px;
+  width: 100%;
 }
 .label {
   font-weight: bold;
@@ -126,6 +151,15 @@ h2 {
   margin-bottom: 15px;
   color: #333;
 }
+canvas {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #aaa;
+  width: 100% !important;
+  height: 250px !important;
+}
+
+/* === TOMBOL ON/OFF === */
 #btnToggle {
   display: block;
   margin: 0 auto 30px auto;
@@ -137,29 +171,20 @@ h2 {
   color: white;
   cursor: pointer;
   width: 150px;
+  transition: background-color 0.3s;
 }
 #btnToggle.off {
   background-color: #dc3545;
 }
-canvas {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px #aaa;
-  width: 100% !important;
-  height: 250px !important;
-}
-.page {
-  display: none;
-}
-.page.active {
-  display: block;
-}
+
+/* === FORM PENGATURAN === */
 input[type="password"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 16px;
 }
 #btnUbahPassword {
   width: 100%;
@@ -168,9 +193,36 @@ input[type="password"] {
   color: white;
   border: none;
   border-radius: 6px;
+  font-size: 16px;
   cursor: pointer;
+  transition: background-color 0.3s;
+}
+#btnUbahPassword:hover {
+  background-color: #0056b3;
 }
 #pesanPassword {
   margin-top: 10px;
   text-align: center;
+  font-size: 14px;
+}
+
+/* === RESPONSIVE (MOBILE) === */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    left: -100%;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .content.shifted {
+    margin-left: 0;
+  }
+  .topbar-home {
+    font-size: 1em;
+    margin-right: 20px;
+  }
+  .grid-item {
+    flex: 1 1 100%;
+  }
 }

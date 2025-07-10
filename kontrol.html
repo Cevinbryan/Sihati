@@ -14,15 +14,13 @@
 
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-  <button id="navHome" class="active">🏠 Home</button>
-
-  <ul class="sidebar-list">
-    <li><a href="history.html" class="history-btn">📜 History</a></li>
-  </ul>
-
-  <button id="navSetting">⚙️ Setting</button>
-  <button id="navLogout">🚪 Logout</button>
-</div>
+    <button id="navHome" class="active">🏠 Home</button>
+    <ul class="sidebar-list">
+      <li><a href="history.html" class="history-btn">📜 History</a></li>
+    </ul>
+    <button id="navSetting">⚙️ Setting</button>
+    <button id="navLogout">🚪 Logout</button>
+  </div>
 
   <!-- Konten Utama -->
   <div class="content" id="mainContent">
@@ -33,27 +31,34 @@
 
     <!-- Halaman Home -->
     <div id="pageHome" class="page active">
-      <h2>Halaman</h2>
+      <h2>Monitoring Real-Time</h2>
       <button id="btnToggle">ON</button>
 
-      <div class="kontrol-item">
-        <span class="label">Nilai Arus (A)</span>
-        <span class="nilai" id="nilaiArus">0.00</span>
-        <canvas id="chartArus"></canvas>
-      </div>
+      <!-- Container dua kolom -->
+      <div class="grid-container">
+        <div class="grid-item kontrol-item">
+          <span class="label">Nilai Arus (A)</span>
+          <span class="nilai" id="nilaiArus">0.00</span>
+          <canvas id="chartArus"></canvas>
+        </div>
 
-      <div class="kontrol-item">
-        <span class="label">Nilai Tegangan (V)</span>
-        <span class="nilai" id="nilaiTegangan">0.00</span>
-        <canvas id="chartTegangan"></canvas>
-      </div>
-    </div>
+        <div class="grid-item kontrol-item">
+          <span class="label">Nilai Tegangan (V)</span>
+          <span class="nilai" id="nilaiTegangan">0.00</span>
+          <canvas id="chartTegangan"></canvas>
+        </div>
 
-    <!-- Halaman History -->
-    <div id="pageHistory" class="page">
-      <h2>Riwayat Arus & Tegangan</h2>
-      <div class="kontrol-item">
-        <canvas id="chartHistory"></canvas>
+        <div class="grid-item kontrol-item">
+          <span class="label">Daya (Watt)</span>
+          <span class="nilai" id="nilaiWatt">0.00</span>
+          <canvas id="chartWatt"></canvas>
+        </div>
+
+        <div class="grid-item kontrol-item">
+          <span class="label">Energi (kWh)</span>
+          <span class="nilai" id="nilaiKwh">0.00</span>
+          <canvas id="chartKwh"></canvas>
+        </div>
       </div>
     </div>
 

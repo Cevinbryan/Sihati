@@ -1,66 +1,56 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // ==== Konfigurasi Firebase ====
+  // ==== Firebase Config ====
   const firebaseConfig = {
     apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnqYzjYt_8kqgM",
     authDomain: "smart-switch-pbl-in2024-db81c.firebaseapp.com",
     projectId: "smart-switch-pbl-in2024-db81c",
-    databaseURL: "https://smart-switch-pbl-in2024-db81c-default-rtdb.asia-southeast1.firebasedatabase.app", // GANTI SESUAI REGION
+    databaseURL: "https://smart-switch-pbl-in2024-db81c-default-rtdb.asia-southeast1.firebasedatabase.app",
     storageBucket: "smart-switch-pbl-in2024-db81c.appspot.com",
     messagingSenderId: "145953908614",
     appId: "1:145953908614:web:c3814666dbd2f0b4a92e07"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // ==== Ambil Element DOM ====
+  // ==== Elemen DOM ====
   const btnToggle = document.getElementById("btnToggle");
   const nilaiArusElem = document.getElementById("nilaiArus");
   const nilaiTeganganElem = document.getElementById("nilaiTegangan");
+  const nilaiWattElem = document.getElementById("nilaiWatt");
+  const nilaiKwhElem = document.getElementById("nilaiKwh");
 
+  // ==== Buat Grafik ====
   const maxDataPoints = 30;
+  let totalEnergiKwh = 0;
 
-  // ==== Chart.js untuk Arus ====
-  const ctxArus = document.getElementById("chartArus").getContext("2d");
-  const chartArus = new Chart(ctxArus, {
-    type: "line",
-    data: {
-      labels: Array(maxDataPoints).fill(""),
-      datasets: [{
-        label: "Arus (A)",
-        data: Array(maxDataPoints).fill(0),
-        borderColor: "rgb(54, 162, 235)",
-        backgroundColor: "rgba(54, 162, 235, 0.3)",
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      animation: false,
-      scales: { y: { beginAtZero: true, max: 10 } }
-    }
-  });
+  function buatChart(ctx, label, warna) {
+    return new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: Array(maxDataPoints).fill(""),
+        datasets: [{
+          label: label,
+          data: Array(maxDataPoints).fill(0),
+          borderColor: warna,
+          backgroundColor: warna.replace("rgb", "rgba").replace(")", ", 0.2)"),
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        animation: false,
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
 
-  // ==== Chart.js untuk Tegangan ====
-  const ctxTegangan = document.getElementById("chartTegangan").getContext("2d");
-  const chartTegangan = new Chart(ctxTegangan, {
-    type: "line",
-    data: {
-      labels: Array(maxDataPoints).fill(""),
-      datasets: [{
-        label: "Tegangan (V)",
-        data: Array(maxDataPoints).fill(0),
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.3)",
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      animation: false,
-      scales: { y: { beginAtZero: true, max: 250 } }
-    }
-  });
+  const chartArus = buatChart(document.getElementById("chartArus").getContext("2d"), "Arus (A)", "rgb(54, 162, 235)");
+  const chartTegangan = buatChart(document.getElementById("chartTegangan").getContext("2d"), "Tegangan (V)", "rgb(255, 99, 132)");
+  const chartWatt = buatChart(document.getElementById("chartWatt").getContext("2d"), "Daya (Watt)", "rgb(255, 165, 0)");
+  const chartKwh = buatChart(document.getElementById("chartKwh").getContext("2d"), "Energi (kWh)", "rgb(128, 0, 128)");
 
   function updateChart(chart, label, value) {
     if (chart.data.labels.length >= maxDataPoints) {
@@ -72,36 +62,40 @@ document.addEventListener("DOMContentLoaded", function () {
     chart.update();
   }
 
-  // ==== Realtime Listener dari Firebase ====
+  // ==== Realtime Data Listener ====
   db.ref().on("value", (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
 
     const arus = parseFloat((data.ARUS || "0").replace(",", ".")) || 0;
     const tegangan = parseFloat((data.tegangan || "0").replace(",", ".")) || 0;
+    const daya = arus * tegangan;
+    const waktu = new Date().toLocaleTimeString();
+    const deltaJam = 1 / 3600;
+    totalEnergiKwh += (daya * deltaJam) / 1000;
 
     nilaiArusElem.textContent = arus.toFixed(2);
     nilaiTeganganElem.textContent = tegangan.toFixed(2);
+    nilaiWattElem.textContent = daya.toFixed(2);
+    nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
 
-    const waktu = new Date().toLocaleTimeString();
     updateChart(chartArus, waktu, arus);
     updateChart(chartTegangan, waktu, tegangan);
+    updateChart(chartWatt, waktu, daya);
+    updateChart(chartKwh, waktu, totalEnergiKwh);
 
-    // Status tombol
-    const tombolStatus = data.tombol || "OFF";
-    btnToggle.textContent = tombolStatus;
-    btnToggle.classList.toggle("off", tombolStatus === "OFF");
+    btnToggle.textContent = data.tombol || "OFF";
+    btnToggle.classList.toggle("off", data.tombol === "OFF");
   });
 
-  // ==== Event Tombol ON/OFF ====
+  // ==== Toggle ON/OFF Button ====
   btnToggle.addEventListener("click", function () {
-    const statusSekarang = btnToggle.textContent === "ON" ? "ON" : "OFF";
-    const statusBaru = statusSekarang === "ON" ? "OFF" : "ON";
-
-    db.ref("tombol").set(statusBaru);
+    const status = btnToggle.textContent;
+    const baru = status === "ON" ? "OFF" : "ON";
+    db.ref("tombol").set(baru);
   });
 
-  // ==== Navigasi Sidebar ====
+  // ==== Sidebar & Navigasi ====
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.getElementById("menuToggle");
   const mainContent = document.getElementById("mainContent");
@@ -123,10 +117,10 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   function showPage(page) {
-    Object.keys(pages).forEach(p => {
-      pages[p].classList.remove("active");
-      navButtons[p].classList.remove("active");
-    });
+    for (const key in pages) {
+      pages[key].classList.remove("active");
+      navButtons[key].classList.remove("active");
+    }
     pages[page].classList.add("active");
     navButtons[page].classList.add("active");
     sidebar.classList.remove("open");
@@ -138,60 +132,58 @@ document.addEventListener("DOMContentLoaded", function () {
   navButtons.Logout.addEventListener("click", () => {
     firebase.auth().signOut().then(() => {
       window.location.href = "login.html";
-    }).catch(error => {
+    }).catch((error) => {
       alert("Gagal logout: " + error.message);
     });
   });
 
   document.getElementById("topbarHome").addEventListener("click", () => {
-    window.location.href = "index.html";
+    showPage("Home");
   });
 
   // ==== Ubah Password ====
   document.getElementById('btnUbahPassword').addEventListener('click', function () {
     const passwordLama = document.getElementById('passwordLama').value;
     const passwordBaru = document.getElementById('passwordBaru').value;
-    const konfirmasiPasswordBaru = document.getElementById('konfirmasiPasswordBaru').value;
-    const pesanPassword = document.getElementById('pesanPassword');
+    const konfirmasi = document.getElementById('konfirmasiPasswordBaru').value;
+    const pesan = document.getElementById('pesanPassword');
 
-    pesanPassword.textContent = '';
-    pesanPassword.style.color = 'red';
+    pesan.textContent = '';
+    pesan.style.color = 'red';
 
-    if (!passwordLama || !passwordBaru || !konfirmasiPasswordBaru) {
-      pesanPassword.textContent = 'Semua kolom harus diisi.';
+    if (!passwordLama || !passwordBaru || !konfirmasi) {
+      pesan.textContent = 'Semua kolom harus diisi.';
       return;
     }
 
-    if (passwordBaru !== konfirmasiPasswordBaru) {
-      pesanPassword.textContent = 'Password baru dan konfirmasi tidak cocok.';
+    if (passwordBaru !== konfirmasi) {
+      pesan.textContent = 'Password baru tidak cocok.';
       return;
     }
 
     const user = firebase.auth().currentUser;
-
     if (user) {
       const credential = firebase.auth.EmailAuthProvider.credential(user.email, passwordLama);
       user.reauthenticateWithCredential(credential)
         .then(() => user.updatePassword(passwordBaru))
         .then(() => {
-          pesanPassword.style.color = 'green';
-          pesanPassword.textContent = 'Password berhasil diubah.';
+          pesan.style.color = 'green';
+          pesan.textContent = 'Password berhasil diubah.';
           document.getElementById('passwordLama').value = '';
           document.getElementById('passwordBaru').value = '';
           document.getElementById('konfirmasiPasswordBaru').value = '';
         })
         .catch((error) => {
-          console.error(error);
           if (error.code === 'auth/wrong-password') {
-            pesanPassword.textContent = 'Password lama salah.';
+            pesan.textContent = 'Password lama salah.';
           } else if (error.code === 'auth/weak-password') {
-            pesanPassword.textContent = 'Password baru terlalu lemah (minimal 6 karakter).';
+            pesan.textContent = 'Password terlalu lemah (min. 6 karakter).';
           } else {
-            pesanPassword.textContent = 'Terjadi kesalahan: ' + error.message;
+            pesan.textContent = 'Kesalahan: ' + error.message;
           }
         });
     } else {
-      pesanPassword.textContent = 'Tidak ada pengguna yang login.';
+      pesan.textContent = 'Pengguna tidak ditemukan.';
     }
   });
 });
