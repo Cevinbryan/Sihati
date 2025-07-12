@@ -1,0 +1,99 @@
+/* Reset dasar */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+}
+
+/* TOPBAR */
+.topbar {
+  background-color: #00695c;
+  color: white;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+/* NAVBAR */
+.navbar {
+  background-color: #009688;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 30px;
+  color: white;
+}
+
+.navbar .logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+/* BANNER */
+.banner {
+  background-image: url('https://source.unsplash.com/1600x600/?greenhouse,plants');
+  background-size: cover;
+  background-position: center;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.banner-content {
+  text-align: center;
+  background-color: rgba(0, 105, 92, 0.6);
+  padding: 30px;
+  color: white;
+  border-radius: 12px;
+}
+
+.banner-content h1 {
+  font-size: 36px;
+  margin-bottom: 15px;
+}
+
+.banner-content .btn-banner {
+  display: inline-block;
+  margin-top: 15px;
+  background-color: #004d40;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 8px;
+}
+
+.banner-content .btn-banner:hover {
+  background-color: #00332b;
+}
+
+/* FOOTER */
+.footer {
+  background-color: #263238;
+  color: white;
+  text-align: center;
+  padding: 15px 0;
+  font-size: 14px;
+  margin-top: 50px;
+}

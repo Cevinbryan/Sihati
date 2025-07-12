@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Riwayat Konsumsi Listrik</title>
+  <link rel="stylesheet" href="history.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <header class="top-bar">
+    <h1>Riwayat Konsumsi Listrik Bulanan</h1>
+  </header>
+
+  <main class="content">
+    <section class="filter-section">
+      <label for="yearSelect">Tahun:</label>
+      <select id="yearSelect"><option>Memuat...</option></select>
+
+      <label for="monthSelect">Bulan:</label>
+      <select id="monthSelect"><option>Pilih Tahun Dulu</option></select>
+
+      <button id="filterButton">Tampilkan Data</button>
+    </section>
+
+    <section class="chart-section">
+      <h2>Grafik Konsumsi kWh dan Biaya</h2>
+      <canvas id="usageChart"></canvas>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 Smart Energy Monitoring - History</p>
+  </footer>
+
+  <script src="history.js"></script>
+</body>
+</html>

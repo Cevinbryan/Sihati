@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kontrol Relay - Firebase</title>
+  <link rel="stylesheet" href="kontrol.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <button id="navHome" class="active">🏠 Home</button>
+    <ul class="sidebar-list">
+      <li><a href="history.html" class="history-btn">📜 History</a></li>
+    </ul>
+    <button id="navSetting">⚙️ Setting</button>
+    <button id="navLogout">🚪 Logout</button>
+  </div>
+
+  <!-- Konten Utama -->
+  <div class="content" id="mainContent">
+    <div class="topbar">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <a href="index.html" class="topbar-home" id="topbarHome">🏠 Beranda</a>
+
+    </div>
+
+    <!-- Halaman Home -->
+    <div id="pageHome" class="page active">
+      <h2>Kendalikan Saklar Anda</h2>
+      <button id="btnToggle">ON</button>
+
+      <!-- Container dua kolom -->
+      <div class="grid-container">
+        <div class="grid-item kontrol-item">
+          <span class="label">Nilai Arus (A)</span>
+          <span class="nilai" id="nilaiArus">0.00</span>
+          <canvas id="chartArus"></canvas>
+        </div>
+
+        <div class="grid-item kontrol-item">
+          <span class="label">Nilai Tegangan (V)</span>
+          <span class="nilai" id="nilaiTegangan">0.00</span>
+          <canvas id="chartTegangan"></canvas>
+        </div>
+
+        <div class="grid-item kontrol-item">
+          <span class="label">Daya (Watt)</span>
+          <span class="nilai" id="nilaiWatt">0.00</span>
+          <canvas id="chartWatt"></canvas>
+        </div>
+
+        <div class="grid-item kontrol-item">
+          <span class="label">Energi (kWh)</span>
+          <span class="nilai" id="nilaiKwh">0.00</span>
+          <canvas id="chartKwh"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Halaman Setting -->
+    <div id="pageSetting" class="page">
+      <h2>Pengaturan</h2>
+      <div class="kontrol-item">
+        <span class="label">Ubah Password</span>
+        <input type="password" id="passwordLama" placeholder="Password lama" />
+        <input type="password" id="passwordBaru" placeholder="Password baru" />
+        <input type="password" id="konfirmasiPasswordBaru" placeholder="Konfirmasi Password Baru" />
+        <button id="btnUbahPassword">Ubah Password</button>
+        <p id="pesanPassword"></p>
+      </div>
+    </div>
+
+    <!-- Halaman Logout -->
+    <div id="pageLogout" class="page">
+      <h2>Logout</h2>
+      <p>Anda telah logout. Terima kasih!</p>
+    </div>
+  </div>
+
+  <script src="kontrol.js"></script>
+</body>
+</html>

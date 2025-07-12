@@ -1,0 +1,364 @@
+/* Global Styles */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  perspective: 1000px;
+}
+
+/* Top Bar */
+.top-bar {
+  background-color: #1abc9c;
+  padding: 15px;
+  text-align: center;
+  font-size: 18px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  color: white;
+}
+
+.top-bar a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #e0f7f4;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 10px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.navbar-logo {
+  height: 130px;
+  width: 200px;
+  object-fit: contain;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  margin: 0;
+}
+
+.nav-links li a {
+  display: block;
+  padding: 6px 12px;
+  text-decoration: none;
+  color: #1abc9c;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+.nav-links li a:hover {
+  background-color: #16a085;
+  color: white;
+}
+
+.nav-links li a.login-btn {
+  background-color: white;
+  color: #1abc9c !important;
+  border-radius: 5px;
+  font-weight: bold;
+  border: 1px solid #1abc9c;
+}
+
+.nav-links li a.login-btn:hover {
+  background-color: #f0f0f0;
+  color: #16a085 !important;
+}
+
+/* Hamburger Icon */
+.menu-toggle {
+  display: none;
+  font-size: 28px;
+  color: #1abc9c;
+  cursor: pointer;
+}
+
+/* Banner */
+.banner {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.banner-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  z-index: 0;
+}
+
+.banner-img.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Berita */
+.berita {
+  padding: 40px;
+  background-color: #e0f7f4;
+  text-align: center;
+}
+
+.berita h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #16a085;
+}
+
+.berita-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  perspective: 1000px;
+  flex-wrap: wrap;
+}
+
+.berita-item {
+  width: 300px;
+  background: #ffffff;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.berita-item:hover {
+  transform: rotateY(10deg) rotateX(5deg) scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+.berita-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.berita-item h3 {
+  font-size: 1.2em;
+  margin: 15px;
+  color: #1abc9c;
+}
+
+.berita-item .btn {
+  display: inline-block;
+  margin-bottom: 15px;
+  padding: 10px 20px;
+  background-color: #1abc9c;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.berita-item .btn:hover {
+  background-color: #16a085;
+}
+
+/* Footer */
+.footer {
+  background-color: #1abc9c;
+  color: white;
+  padding: 40px 20px 20px;
+  font-size: 15px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-section {
+  flex: 1 1 250px;
+  margin: 10px;
+}
+
+.footer-section h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .top-bar {
+    flex-direction: column;
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .menu-toggle {
+    display: block;
+    position: absolute;
+    right: 20px;
+    top: 30px;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: #e0f7f4;
+    margin-top: 20px;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    text-align: center;
+    margin: 10px 0;
+  }
+
+  .navbar-content {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+  }
+
+  .navbar-logo {
+    margin: 10px auto;
+    height: 80px;
+    width: 80px;
+  }
+
+  .banner {
+    height: 250px;
+  }
+
+  .banner-img {
+    max-width: 90%;
+    max-height: 90%;
+  }
+
+  .berita {
+    padding: 20px;
+  }
+
+  .berita-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .berita-item {
+    width: 90%;
+    margin-bottom: 20px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .footer-section {
+    margin-bottom: 20px;
+  }
+
+  .footer-section h3 {
+    font-size: 14px;
+  }
+
+  .footer-bottom {
+    font-size: 12px;
+  }
+}
+
+/* Hamburger Icon */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  width: 30px;
+  height: 25px;
+  justify-content: space-between;
+}
+
+.menu-toggle .bar {
+  height: 4px;
+  width: 100%;
+  background-color: #1abc9c;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.menu-toggle.active .bar:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active .bar:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.active .bar:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+@media (max-width: 600px) {
+  .menu-toggle {
+    display: flex;
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    z-index: 1001;
+  }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: #e0f7f4;
+    margin-top: 20px;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+    text-align: center;
+    margin: 10px 0;
+  }
+}
+
