@@ -79,22 +79,24 @@ document.addEventListener("DOMContentLoaded", function () {
     nilaiWattElem.textContent = daya.toFixed(2);
     nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
 
+    // ✅ Gunakan relay.status
+    const statusRelay = data.relay?.status || "OFF";
+    btnToggle.textContent = statusRelay;
+    btnToggle.classList.toggle("off", statusRelay === "OFF");
+
     updateChart(chartArus, waktu, arus);
     updateChart(chartTegangan, waktu, tegangan);
     updateChart(chartWatt, waktu, daya);
     updateChart(chartKwh, waktu, totalEnergiKwh);
-
-    btnToggle.textContent = data.tombol || "OFF";
-    btnToggle.classList.toggle("off", data.tombol === "OFF");
   });
 
   // ==== Toggle ON/OFF Button ====
   btnToggle.addEventListener("click", function () {
     const status = btnToggle.textContent;
     const baru = status === "ON" ? "OFF" : "ON";
-    db.ref("tombol").set(baru);
+    db.ref("relay/status").set(baru); // ✅ Simpan di relay/status
   });
-
+//rizkyewsqs
   // ==== Sidebar & Navigasi ====
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.getElementById("menuToggle");
