@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const baru = status === "ON" ? "OFF" : "ON";
     db.ref("relay/status").set(baru); // ✅ Simpan di relay/status
   });
-//rizky
+//rizkyew
   // ==== Sidebar & Navigasi ====
   const sidebar = document.getElementById("sidebar");
   const menuToggle = document.getElementById("menuToggle");
