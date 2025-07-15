@@ -19,7 +19,54 @@ document.addEventListener("DOMContentLoaded", function () {
   const nilaiWattElem = document.getElementById("nilaiWatt");
   const nilaiKwhElem = document.getElementById("nilaiKwh");
 
-  // ==== Variabel Global ====
+  // ==== Sidebar Toggle ====
+  const menuToggleBtn = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+
+  if (menuToggleBtn && sidebar) {
+    menuToggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+    });
+  }
+
+  // ==== Navigasi Halaman ====
+  const navHome = document.getElementById("navHome");
+  const navSetting = document.getElementById("navSetting");
+  const navLogout = document.getElementById("navLogout");
+
+  const pageHome = document.getElementById("pageHome");
+  const pageSetting = document.getElementById("pageSetting");
+
+  function showPage(pageToShow) {
+    const pages = [pageHome, pageSetting];
+    pages.forEach(page => page.classList.remove("active"));
+    pageToShow.classList.add("active");
+
+    const navButtons = [navHome, navSetting];
+    navButtons.forEach(btn => btn.classList.remove("active"));
+    if (pageToShow === pageHome) navHome.classList.add("active");
+    if (pageToShow === pageSetting) navSetting.classList.add("active");
+
+    sidebar.classList.remove("open");
+  }
+
+  navHome.addEventListener("click", () => showPage(pageHome));
+  navSetting.addEventListener("click", () => showPage(pageSetting));
+
+  // === Logout - Pindah ke halaman login.html ===
+  navLogout.addEventListener("click", () => {
+    // Jika kamu juga menggunakan Firebase Authentication:
+    // firebase.auth().signOut().then(() => {
+    //   window.location.href = "login.html";
+    // }).catch((error) => {
+    //   alert("Gagal logout: " + error.message);
+    // });
+
+    // Jika hanya ingin pindah halaman:
+    window.location.href = "login.html";
+  });
+
+  // ==== Grafik dan Data Realtime ====
   const maxDataPoints = 30;
   let totalEnergiKwh = 0;
   let lastUpdateTime = Date.now();
@@ -70,6 +117,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const chartWatt = buatChart(document.getElementById("chartWatt").getContext("2d"), "Daya (Watt)", "rgb(255, 165, 0)");
   const chartKwh = buatChart(document.getElementById("chartKwh").getContext("2d"), "Energi (kWh)", "rgb(128, 0, 128)");
 
+  // ==== Baca Data Realtime ====
   db.ref().on("value", (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
@@ -89,16 +137,14 @@ document.addEventListener("DOMContentLoaded", function () {
     totalEnergiKwh += (daya * deltaJam) / 1000;
     lastUpdateTime = currentTime;
 
-    if (nilaiArusElem) nilaiArusElem.textContent = arus.toFixed(2);
-    if (nilaiTeganganElem) nilaiTeganganElem.textContent = tegangan.toFixed(2);
-    if (nilaiWattElem) nilaiWattElem.textContent = daya.toFixed(2);
-    if (nilaiKwhElem) nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
+    nilaiArusElem.textContent = arus.toFixed(2);
+    nilaiTeganganElem.textContent = tegangan.toFixed(2);
+    nilaiWattElem.textContent = daya.toFixed(2);
+    nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
 
-    if (btnToggle) {
-      const statusRelay = data.relay?.status || "OFF";
-      btnToggle.textContent = statusRelay;
-      btnToggle.classList.toggle("off", statusRelay === "OFF");
-    }
+    const statusRelay = data.relay?.status || "OFF";
+    btnToggle.textContent = statusRelay;
+    btnToggle.classList.toggle("off", statusRelay === "OFF");
 
     updateChart(chartArus, waktu, arus);
     updateChart(chartTegangan, waktu, tegangan);
@@ -106,28 +152,28 @@ document.addEventListener("DOMContentLoaded", function () {
     updateChart(chartKwh, waktu, totalEnergiKwh);
   });
 
-  if (btnToggle) {
-    btnToggle.addEventListener("click", () => {
-      const currentText = btnToggle.textContent.trim().toUpperCase();
-      const newStatus = currentText === "ON" ? "OFF" : "ON";
+  // ==== Tombol ON/OFF Relay ====
+  btnToggle.addEventListener("click", () => {
+    const currentText = btnToggle.textContent.trim().toUpperCase();
+    const newStatus = currentText === "ON" ? "OFF" : "ON";
 
-      btnToggle.disabled = true;
-      btnToggle.textContent = "Loading...";
+    btnToggle.disabled = true;
+    btnToggle.textContent = "Loading...";
 
-      db.ref("relay/status").set(newStatus)
-        .then(() => {
-          btnToggle.textContent = newStatus;
-          btnToggle.disabled = false;
-          btnToggle.classList.toggle("off", newStatus === "OFF");
-        })
-        .catch((error) => {
-          alert("Gagal mengubah status relay: " + error.message);
-          btnToggle.textContent = currentText;
-          btnToggle.disabled = false;
-        });
-    });
-  }
+    db.ref("relay/status").set(newStatus)
+      .then(() => {
+        btnToggle.textContent = newStatus;
+        btnToggle.disabled = false;
+        btnToggle.classList.toggle("off", newStatus === "OFF");
+      })
+      .catch((error) => {
+        alert("Gagal mengubah status relay: " + error.message);
+        btnToggle.textContent = currentText;
+        btnToggle.disabled = false;
+      });
+  });
 
+  // ==== Cek Koneksi ke Firebase ====
   const connectedRef = db.ref(".info/connected");
   connectedRef.on("value", (snap) => {
     const isConnected = snap.val();
