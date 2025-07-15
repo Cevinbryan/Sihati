@@ -19,9 +19,20 @@ document.addEventListener("DOMContentLoaded", function () {
   const nilaiWattElem = document.getElementById("nilaiWatt");
   const nilaiKwhElem = document.getElementById("nilaiKwh");
 
-  // ==== Buat Grafik ====
+  // ==== Variabel Global ====
   const maxDataPoints = 30;
   let totalEnergiKwh = 0;
+  let lastUpdateTime = Date.now();
+
+  function updateChart(chart, label, value) {
+    if (chart.data.labels.length >= maxDataPoints) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(value);
+    chart.update("none");
+  }
 
   function buatChart(ctx, label, warna) {
     return new Chart(ctx, {
@@ -40,8 +51,15 @@ document.addEventListener("DOMContentLoaded", function () {
       options: {
         animation: false,
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
-          y: { beginAtZero: true }
+          y: { beginAtZero: true },
+          x: {}
+        },
+        plugins: {
+          legend: {
+            labels: { color: "#fff" }
+          }
         }
       }
     });
@@ -52,37 +70,35 @@ document.addEventListener("DOMContentLoaded", function () {
   const chartWatt = buatChart(document.getElementById("chartWatt").getContext("2d"), "Daya (Watt)", "rgb(255, 165, 0)");
   const chartKwh = buatChart(document.getElementById("chartKwh").getContext("2d"), "Energi (kWh)", "rgb(128, 0, 128)");
 
-  function updateChart(chart, label, value) {
-    if (chart.data.labels.length >= maxDataPoints) {
-      chart.data.labels.shift();
-      chart.data.datasets[0].data.shift();
-    }
-    chart.data.labels.push(label);
-    chart.data.datasets[0].data.push(value);
-    chart.update();
-  }
-
-  // ==== Realtime Data Listener ====
   db.ref().on("value", (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
 
-    const arus = parseFloat((data.ARUS || "0").replace(",", ".")) || 0;
-    const tegangan = parseFloat((data.tegangan || "0").replace(",", ".")) || 0;
+    let arus = 0;
+    let tegangan = 0;
+    if (data.powerData) {
+      arus = parseFloat((data.powerData.current || "0").toString().replace(",", ".")) || 0;
+      tegangan = parseFloat((data.powerData.voltage || "0").toString().replace(",", ".")) || 0;
+    }
+
     const daya = arus * tegangan;
     const waktu = new Date().toLocaleTimeString();
-    const deltaJam = 1 / 3600;
+
+    const currentTime = Date.now();
+    const deltaJam = (currentTime - lastUpdateTime) / (1000 * 3600);
     totalEnergiKwh += (daya * deltaJam) / 1000;
+    lastUpdateTime = currentTime;
 
-    nilaiArusElem.textContent = arus.toFixed(2);
-    nilaiTeganganElem.textContent = tegangan.toFixed(2);
-    nilaiWattElem.textContent = daya.toFixed(2);
-    nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
+    if (nilaiArusElem) nilaiArusElem.textContent = arus.toFixed(2);
+    if (nilaiTeganganElem) nilaiTeganganElem.textContent = tegangan.toFixed(2);
+    if (nilaiWattElem) nilaiWattElem.textContent = daya.toFixed(2);
+    if (nilaiKwhElem) nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
 
-    // ✅ Gunakan relay.status
-    const statusRelay = data.relay?.status || "OFF";
-    btnToggle.textContent = statusRelay;
-    btnToggle.classList.toggle("off", statusRelay === "OFF");
+    if (btnToggle) {
+      const statusRelay = data.relay?.status || "OFF";
+      btnToggle.textContent = statusRelay;
+      btnToggle.classList.toggle("off", statusRelay === "OFF");
+    }
 
     updateChart(chartArus, waktu, arus);
     updateChart(chartTegangan, waktu, tegangan);
@@ -90,102 +106,35 @@ document.addEventListener("DOMContentLoaded", function () {
     updateChart(chartKwh, waktu, totalEnergiKwh);
   });
 
-  // ==== Toggle ON/OFF Button ====
-  btnToggle.addEventListener("click", function () {
-    const status = btnToggle.textContent;
-    const baru = status === "ON" ? "OFF" : "ON";
-    db.ref("relay/status").set(baru); // ✅ Simpan di relay/status
-  });
-//rizkyewsqs
-  // ==== Sidebar & Navigasi ====
-  const sidebar = document.getElementById("sidebar");
-  const menuToggle = document.getElementById("menuToggle");
-  const mainContent = document.getElementById("mainContent");
+  if (btnToggle) {
+    btnToggle.addEventListener("click", () => {
+      const currentText = btnToggle.textContent.trim().toUpperCase();
+      const newStatus = currentText === "ON" ? "OFF" : "ON";
 
-  menuToggle.addEventListener("click", () => {
-    sidebar.classList.toggle("open");
-    mainContent.classList.toggle("shifted");
-  });
+      btnToggle.disabled = true;
+      btnToggle.textContent = "Loading...";
 
-  const pages = {
-    Home: document.getElementById("pageHome"),
-    Setting: document.getElementById("pageSetting"),
-    Logout: document.getElementById("pageLogout")
-  };
-  const navButtons = {
-    Home: document.getElementById("navHome"),
-    Setting: document.getElementById("navSetting"),
-    Logout: document.getElementById("navLogout")
-  };
-
-  function showPage(page) {
-    for (const key in pages) {
-      pages[key].classList.remove("active");
-      navButtons[key].classList.remove("active");
-    }
-    pages[page].classList.add("active");
-    navButtons[page].classList.add("active");
-    sidebar.classList.remove("open");
-    mainContent.classList.remove("shifted");
-  }
-
-  navButtons.Home.addEventListener("click", () => showPage("Home"));
-  navButtons.Setting.addEventListener("click", () => showPage("Setting"));
-  navButtons.Logout.addEventListener("click", () => {
-    firebase.auth().signOut().then(() => {
-      window.location.href = "login.html";
-    }).catch((error) => {
-      alert("Gagal logout: " + error.message);
-    });
-  });
-
-  document.getElementById("topbarHome").addEventListener("click", () => {
-    showPage("Home");
-  });
-
-  // ==== Ubah Password ====
-  document.getElementById('btnUbahPassword').addEventListener('click', function () {
-    const passwordLama = document.getElementById('passwordLama').value;
-    const passwordBaru = document.getElementById('passwordBaru').value;
-    const konfirmasi = document.getElementById('konfirmasiPasswordBaru').value;
-    const pesan = document.getElementById('pesanPassword');
-
-    pesan.textContent = '';
-    pesan.style.color = 'red';
-
-    if (!passwordLama || !passwordBaru || !konfirmasi) {
-      pesan.textContent = 'Semua kolom harus diisi.';
-      return;
-    }
-
-    if (passwordBaru !== konfirmasi) {
-      pesan.textContent = 'Password baru tidak cocok.';
-      return;
-    }
-
-    const user = firebase.auth().currentUser;
-    if (user) {
-      const credential = firebase.auth.EmailAuthProvider.credential(user.email, passwordLama);
-      user.reauthenticateWithCredential(credential)
-        .then(() => user.updatePassword(passwordBaru))
+      db.ref("relay/status").set(newStatus)
         .then(() => {
-          pesan.style.color = 'green';
-          pesan.textContent = 'Password berhasil diubah.';
-          document.getElementById('passwordLama').value = '';
-          document.getElementById('passwordBaru').value = '';
-          document.getElementById('konfirmasiPasswordBaru').value = '';
+          btnToggle.textContent = newStatus;
+          btnToggle.disabled = false;
+          btnToggle.classList.toggle("off", newStatus === "OFF");
         })
         .catch((error) => {
-          if (error.code === 'auth/wrong-password') {
-            pesan.textContent = 'Password lama salah.';
-          } else if (error.code === 'auth/weak-password') {
-            pesan.textContent = 'Password terlalu lemah (min. 6 karakter).';
-          } else {
-            pesan.textContent = 'Kesalahan: ' + error.message;
-          }
+          alert("Gagal mengubah status relay: " + error.message);
+          btnToggle.textContent = currentText;
+          btnToggle.disabled = false;
         });
-    } else {
-      pesan.textContent = 'Pengguna tidak ditemukan.';
+    });
+  }
+
+  const connectedRef = db.ref(".info/connected");
+  connectedRef.on("value", (snap) => {
+    const isConnected = snap.val();
+    const statusIndicator = document.getElementById("statusConnection");
+    if (statusIndicator) {
+      statusIndicator.textContent = isConnected ? "Online" : "Offline";
+      statusIndicator.className = isConnected ? "status online" : "status offline";
     }
   });
 });
