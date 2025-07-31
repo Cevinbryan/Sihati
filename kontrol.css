@@ -15,24 +15,24 @@ body {
 
 /* === SIDEBAR === */
 .sidebar {
+  position: fixed;
+  left: -220px;
+  top: 0;
+  bottom: 0;
   width: 220px;
   background: linear-gradient(145deg, #2c3e50, #34495e);
   color: white;
   padding-top: 60px;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: -220px;
-  transition: transform 0.3s ease-out;
+  transition: left 0.3s ease;
   z-index: 2;
   box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
   border-right: 1px solid rgba(255, 255, 255, 0.1);
-  transform: translateX(0) translateZ(0);
 }
 .sidebar.open {
-  transform: translateX(220px) translateZ(0);
+  left: 0;
 }
-.sidebar button {
+.sidebar button,
+.sidebar-list li a {
   display: block;
   width: 100%;
   padding: 15px 20px;
@@ -48,43 +48,7 @@ body {
   transform: translateZ(0);
   transition: all 0.2s ease;
 }
-.sidebar button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 100%;
-  background: linear-gradient(90deg, #3498db, #2980b9);
-  transition: width 0.2s ease;
-  border-radius: 0 25px 25px 0;
-  z-index: -1;
-}
-.sidebar button:hover::before,
-.sidebar button.active::before {
-  width: 100%;
-}
-.sidebar button:hover,
-.sidebar button.active {
-  transform: translateX(3px) translateZ(0);
-}
-.sidebar-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 10px 0;
-}
-.sidebar-list li a {
-  display: block;
-  padding: 12px 20px;
-  text-decoration: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 0 25px 25px 0;
-  margin: 2px 0;
-  position: relative;
-  transform: translateZ(0);
-  transition: all 0.2s ease;
-}
+.sidebar button::before,
 .sidebar-list li a::before {
   content: '';
   position: absolute;
@@ -92,16 +56,30 @@ body {
   left: 0;
   width: 0;
   height: 100%;
-  background: linear-gradient(90deg, #e74c3c, #c0392b);
   transition: width 0.2s ease;
   border-radius: 0 25px 25px 0;
   z-index: -1;
 }
+.sidebar button::before {
+  background: linear-gradient(90deg, #3498db, #2980b9);
+}
+.sidebar-list li a::before {
+  background: linear-gradient(90deg, #e74c3c, #c0392b);
+}
+.sidebar button:hover::before,
+.sidebar button.active::before,
 .sidebar-list li a:hover::before {
   width: 100%;
 }
+.sidebar button:hover,
+.sidebar button.active,
 .sidebar-list li a:hover {
-  transform: translateX(3px) translateZ(0);
+  transform: translateX(3px);
+}
+.sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
 }
 
 /* === KONTEN UTAMA === */
@@ -334,16 +312,10 @@ input[type="password"]:focus {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* === ANIMASI TAMBAHAN === */
+/* === ANIMASI TAMBAHAN & OPTIMASI === */
 @keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
 }
 .loading {
   animation: pulse 1.5s ease-in-out infinite;
@@ -355,19 +327,6 @@ input[type="password"]:focus {
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
-
-/* === OPTIMASI PERFORMA === */
-.sidebar,
-.content,
-.kontrol-item,
-#btnToggle,
-#btnUbahPassword {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* === DISABLE ANIMASI SAAT RESIZE === */
 .resize-animation-stopper * {
   animation-duration: 0s !important;
   animation-delay: 0s !important;
@@ -379,17 +338,10 @@ input[type="password"]:focus {
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
-    transform: translateX(-100%);
+    left: -100%;
   }
   .sidebar.open {
-    transform: translateX(0);
-  }
-  .content.shifted {
-    margin-left: 0;
-  }
-  .topbar-home {
-    font-size: 1em;
-    margin-right: 20px;
+    left: 0;
   }
   .grid-item {
     flex: 1 1 100%;
@@ -414,37 +366,4 @@ input[type="password"]:focus {
     padding: 15px 10px;
     margin: 70px 5px 10px 5px;
   }
-  .grid-container {
-    gap: 15px;
-  }
-  .grid-item {
-    flex: 1 1 100%;
-  }
-  .kontrol-item {
-    padding: 15px;
-  }
-  h2 {
-    font-size: 22px;
-    margin-top: 70px;
-  }
-  #btnToggle,
-  #btnUbahPassword {
-    width: 100%;
-    padding: 12px 18px;
-    font-size: 1em;
-  }
-}
-
-.sidebar {
-  position: fixed;
-  left: -250px;
-  top: 0;
-  width: 250px;
-  height: 100%;
-  background-color: #222;
-  transition: left 0.3s ease;
-}
-
-.sidebar.open {
-  left: -0,1;
 }

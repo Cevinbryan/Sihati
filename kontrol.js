@@ -12,65 +12,93 @@ document.addEventListener("DOMContentLoaded", function () {
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // ==== Elemen DOM ====
+  const microSelect = document.getElementById("microSelect");
   const btnToggle = document.getElementById("btnToggle");
   const nilaiArusElem = document.getElementById("nilaiArus");
   const nilaiTeganganElem = document.getElementById("nilaiTegangan");
   const nilaiWattElem = document.getElementById("nilaiWatt");
   const nilaiKwhElem = document.getElementById("nilaiKwh");
 
-  // ==== Sidebar Toggle ====
-  const menuToggleBtn = document.getElementById("menuToggle");
-  const sidebar = document.getElementById("sidebar");
-
-  if (menuToggleBtn && sidebar) {
-    menuToggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-    });
-  }
-
-  // ==== Navigasi Halaman ====
-  const navHome = document.getElementById("navHome");
-  const navSetting = document.getElementById("navSetting");
-  const navLogout = document.getElementById("navLogout");
-
-  const pageHome = document.getElementById("pageHome");
-  const pageSetting = document.getElementById("pageSetting");
-
-  function showPage(pageToShow) {
-    const pages = [pageHome, pageSetting];
-    pages.forEach(page => page.classList.remove("active"));
-    pageToShow.classList.add("active");
-
-    const navButtons = [navHome, navSetting];
-    navButtons.forEach(btn => btn.classList.remove("active"));
-    if (pageToShow === pageHome) navHome.classList.add("active");
-    if (pageToShow === pageSetting) navSetting.classList.add("active");
-
-    sidebar.classList.remove("open");
-  }
-
-  navHome.addEventListener("click", () => showPage(pageHome));
-  navSetting.addEventListener("click", () => showPage(pageSetting));
-
-  // === Logout - Pindah ke halaman login.html ===
-  navLogout.addEventListener("click", () => {
-    // Jika kamu juga menggunakan Firebase Authentication:
-    // firebase.auth().signOut().then(() => {
-    //   window.location.href = "login.html";
-    // }).catch((error) => {
-    //   alert("Gagal logout: " + error.message);
-    // });
-
-    // Jika hanya ingin pindah halaman:
-    window.location.href = "login.html";
-  });
-
-  // ==== Grafik dan Data Realtime ====
-  const maxDataPoints = 30;
+  let currentMicro = null;
+  let currentListener = null;
   let totalEnergiKwh = 0;
   let lastUpdateTime = Date.now();
 
+  // === Load daftar mikrokontroler ===
+  db.ref("mikrokontroler").once("value", (snapshot) => {
+    microSelect.innerHTML = "";
+    snapshot.forEach((child) => {
+      const id = child.key;
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = id;
+      microSelect.appendChild(opt);
+    });
+    currentMicro = microSelect.value;
+    listenRealtime(currentMicro);
+  });
+
+  microSelect.addEventListener("change", () => {
+    currentMicro = microSelect.value;
+    totalEnergiKwh = 0;
+    lastUpdateTime = Date.now();
+    if (currentListener) currentListener.off();
+    listenRealtime(currentMicro);
+  });
+
+  function listenRealtime(microId) {
+    const ref = db.ref(`mikrokontroler/${microId}`);
+    currentListener = ref;
+    ref.on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      let arus = parseFloat(data.powerData?.current?.toString().replace(",", ".")) || 0;
+      let tegangan = parseFloat(data.powerData?.voltage?.toString().replace(",", ".")) || 0;
+      const daya = arus * tegangan;
+      const waktu = new Date().toLocaleTimeString();
+      const now = Date.now();
+      const deltaJam = (now - lastUpdateTime) / (1000 * 3600);
+      totalEnergiKwh += (daya * deltaJam) / 1000;
+      lastUpdateTime = now;
+
+      nilaiArusElem.textContent = arus.toFixed(2);
+      nilaiTeganganElem.textContent = tegangan.toFixed(2);
+      nilaiWattElem.textContent = daya.toFixed(2);
+      nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
+
+      updateChart(chartArus, waktu, arus);
+      updateChart(chartTegangan, waktu, tegangan);
+      updateChart(chartWatt, waktu, daya);
+      updateChart(chartKwh, waktu, totalEnergiKwh);
+
+      const statusRelay = data.relay?.status || "OFF";
+      btnToggle.textContent = statusRelay;
+      btnToggle.classList.toggle("off", statusRelay === "OFF");
+    });
+  }
+
+  btnToggle.addEventListener("click", () => {
+    if (!currentMicro) return;
+    const currentText = btnToggle.textContent.trim().toUpperCase();
+    const newStatus = currentText === "ON" ? "OFF" : "ON";
+    btnToggle.disabled = true;
+    btnToggle.textContent = "Loading...";
+    db.ref(`mikrokontroler/${currentMicro}/relay/status`).set(newStatus)
+      .then(() => {
+        btnToggle.textContent = newStatus;
+        btnToggle.disabled = false;
+        btnToggle.classList.toggle("off", newStatus === "OFF");
+      })
+      .catch((error) => {
+        alert("Gagal mengubah status relay: " + error.message);
+        btnToggle.textContent = currentText;
+        btnToggle.disabled = false;
+      });
+  });
+
+  // ==== Grafik ====
+  const maxDataPoints = 30;
   function updateChart(chart, label, value) {
     if (chart.data.labels.length >= maxDataPoints) {
       chart.data.labels.shift();
@@ -117,63 +145,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const chartWatt = buatChart(document.getElementById("chartWatt").getContext("2d"), "Daya (Watt)", "rgb(255, 165, 0)");
   const chartKwh = buatChart(document.getElementById("chartKwh").getContext("2d"), "Energi (kWh)", "rgb(128, 0, 128)");
 
-  // ==== Baca Data Realtime ====
-  db.ref().on("value", (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
+  // ==== Navigasi Sidebar ====
+  const menuToggleBtn = document.getElementById("menuToggle");
+  const sidebar = document.getElementById("sidebar");
+  if (menuToggleBtn && sidebar) {
+    menuToggleBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
+  }
 
-    let arus = 0;
-    let tegangan = 0;
-    if (data.powerData) {
-      arus = parseFloat((data.powerData.current || "0").toString().replace(",", ".")) || 0;
-      tegangan = parseFloat((data.powerData.voltage || "0").toString().replace(",", ".")) || 0;
-    }
+  const navHome = document.getElementById("navHome");
+  const navSetting = document.getElementById("navSetting");
+  const navLogout = document.getElementById("navLogout");
+  const pageHome = document.getElementById("pageHome");
+  const pageSetting = document.getElementById("pageSetting");
 
-    const daya = arus * tegangan;
-    const waktu = new Date().toLocaleTimeString();
+  function showPage(pageToShow) {
+    [pageHome, pageSetting].forEach(p => p.classList.remove("active"));
+    pageToShow.classList.add("active");
+    [navHome, navSetting].forEach(b => b.classList.remove("active"));
+    if (pageToShow === pageHome) navHome.classList.add("active");
+    if (pageToShow === pageSetting) navSetting.classList.add("active");
+    sidebar.classList.remove("open");
+  }
 
-    const currentTime = Date.now();
-    const deltaJam = (currentTime - lastUpdateTime) / (1000 * 3600);
-    totalEnergiKwh += (daya * deltaJam) / 1000;
-    lastUpdateTime = currentTime;
+  navHome?.addEventListener("click", () => showPage(pageHome));
+  navSetting?.addEventListener("click", () => showPage(pageSetting));
+  navLogout?.addEventListener("click", () => window.location.href = "login.html");
 
-    nilaiArusElem.textContent = arus.toFixed(2);
-    nilaiTeganganElem.textContent = tegangan.toFixed(2);
-    nilaiWattElem.textContent = daya.toFixed(2);
-    nilaiKwhElem.textContent = totalEnergiKwh.toFixed(4);
-
-    const statusRelay = data.relay?.status || "OFF";
-    btnToggle.textContent = statusRelay;
-    btnToggle.classList.toggle("off", statusRelay === "OFF");
-
-    updateChart(chartArus, waktu, arus);
-    updateChart(chartTegangan, waktu, tegangan);
-    updateChart(chartWatt, waktu, daya);
-    updateChart(chartKwh, waktu, totalEnergiKwh);
-  });
-
-  // ==== Tombol ON/OFF Relay ====
-  btnToggle.addEventListener("click", () => {
-    const currentText = btnToggle.textContent.trim().toUpperCase();
-    const newStatus = currentText === "ON" ? "OFF" : "ON";
-
-    btnToggle.disabled = true;
-    btnToggle.textContent = "Loading...";
-
-    db.ref("relay/status").set(newStatus)
-      .then(() => {
-        btnToggle.textContent = newStatus;
-        btnToggle.disabled = false;
-        btnToggle.classList.toggle("off", newStatus === "OFF");
-      })
-      .catch((error) => {
-        alert("Gagal mengubah status relay: " + error.message);
-        btnToggle.textContent = currentText;
-        btnToggle.disabled = false;
-      });
-  });
-
-  // ==== Cek Koneksi ke Firebase ====
+  // ==== Cek Status Koneksi ====
   const connectedRef = db.ref(".info/connected");
   connectedRef.on("value", (snap) => {
     const isConnected = snap.val();
