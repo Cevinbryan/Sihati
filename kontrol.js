@@ -138,3 +138,73 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+const menuToggle = document.getElementById("menuToggle");
+const sidebar = document.getElementById("sidebar");
+const content = document.getElementById("mainContent");
+const overlay = document.getElementById("overlay");
+
+if (menuToggle && sidebar && content && overlay) {
+  function toggleSidebar() {
+    const isOpen = sidebar.classList.toggle("open");
+    content.classList.toggle("shifted", isOpen);
+    overlay.classList.toggle("active", isOpen);
+  }
+
+  menuToggle.addEventListener("click", toggleSidebar);
+  overlay.addEventListener("click", toggleSidebar); // klik di luar sidebar untuk tutup
+}
+
+// ==== Navigasi Halaman ====
+const pages = {
+  home: document.getElementById("pageHome"),
+  setting: document.getElementById("pageSetting"),
+  logout: document.getElementById("pageLogout"),
+};
+
+const navHome = document.getElementById("navHome");
+const navSetting = document.getElementById("navSetting");
+const navLogout = document.getElementById("navLogout");
+
+function showPage(pageName) {
+  Object.values(pages).forEach(page => page.classList.remove("active"));
+  if (pages[pageName]) pages[pageName].classList.add("active");
+
+  // Tutup sidebar & overlay jika sedang dibuka
+  sidebar.classList.remove("open");
+  overlay.classList.remove("active");
+  content.classList.remove("shifted");
+
+  // Update tombol active di sidebar
+  [navHome, navSetting, navLogout].forEach(btn => btn.classList.remove("active"));
+  if (pageName === "home") navHome.classList.add("active");
+  if (pageName === "setting") navSetting.classList.add("active");
+  if (pageName === "logout") navLogout.classList.add("active");
+}
+
+// Event listener tombol sidebar
+if (navHome) navHome.addEventListener("click", () => showPage("home"));
+if (navSetting) navSetting.addEventListener("click", () => showPage("setting"));
+if (navLogout) navLogout.addEventListener("click", () => showPage("logout"));
+
+if (navLogout) {
+  navLogout.addEventListener("click", () => {
+    // Tampilkan halaman logout (opsional)
+    showPage("logout");
+
+    // Logout Firebase
+    firebase.auth().signOut().then(() => {
+      // Redirect ke halaman login (index.html)
+      window.location.href = "index.html";
+    }).catch((error) => {
+      alert("Gagal logout: " + error.message);
+    });
+  });
+}
+
+firebase.auth().onAuthStateChanged((user) => {
+  if (!user) {
+    // Jika belum login, redirect ke halaman login
+    window.location.href = "index.html";
+  }
+});
