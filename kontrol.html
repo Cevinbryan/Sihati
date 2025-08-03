@@ -22,12 +22,14 @@
     <button id="navLogout">🚪 Logout</button>
   </div>
 
-  <!-- Konten Utama -->
+  <!-- Overlay untuk sidebar -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Konten utama -->
   <div class="content" id="mainContent">
     <div class="topbar">
       <button class="menu-toggle" id="menuToggle">☰</button>
       <a href="index.html" class="topbar-home" id="topbarHome">🏠 Beranda</a>
-
     </div>
 
     <!-- Halaman Home -->
@@ -35,26 +37,22 @@
       <h2>Monitoring Real-Time</h2>
       <button id="btnToggle">ON</button>
 
-      <!-- Container dua kolom -->
       <div class="grid-container">
         <div class="grid-item kontrol-item">
           <span class="label">Nilai Arus (A)</span>
           <span class="nilai" id="nilaiArus">0.00</span>
           <canvas id="chartArus"></canvas>
         </div>
-
         <div class="grid-item kontrol-item">
           <span class="label">Nilai Tegangan (V)</span>
           <span class="nilai" id="nilaiTegangan">0.00</span>
           <canvas id="chartTegangan"></canvas>
         </div>
-
         <div class="grid-item kontrol-item">
           <span class="label">Daya (Watt)</span>
           <span class="nilai" id="nilaiWatt">0.00</span>
           <canvas id="chartWatt"></canvas>
         </div>
-
         <div class="grid-item kontrol-item">
           <span class="label">Energi (kWh)</span>
           <span class="nilai" id="nilaiKwh">0.00</span>
