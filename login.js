@@ -9,40 +9,71 @@ const firebaseConfig = {
   appId: "1:145953908614:web:c3814666dbd2f0b4a92e07"
 };
 
+// Inisialisasi Firebase
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// Login
+// Fungsi Login
 document.getElementById("loginForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const email = document.getElementById("username").value;
+  const email = document.getElementById("username").value.trim();
   const password = document.getElementById("password").value;
+
+  // Validasi email
+  if (!email.includes("@")) {
+    tampilkanPesan("Format email tidak valid.", "red");
+    return;
+  }
 
   auth.signInWithEmailAndPassword(email, password)
     .then((userCredential) => {
+      // Login berhasil, redirect
       window.location.href = "kontrol.html";
     })
     .catch((error) => {
-      document.getElementById("pesan").textContent = "Login gagal: " + error.message;
-      document.getElementById("pesan").style.color = "red";
+      // Menangani error dengan kode
+      let msg;
+      switch (error.code) {
+        case 'auth/user-not-found':
+          msg = "Pengguna tidak ditemukan.";
+          break;
+        case 'auth/wrong-password':
+          msg = "Kata sandi salah.";
+          break;
+        case 'auth/invalid-email':
+          msg = "Email tidak valid.";
+          break;
+        default:
+          msg = "Login gagal: " + error.message;
+      }
+      tampilkanPesan(msg, "red");
     });
 });
 
-// Lupa Password
+// Fungsi Reset Password
 document.getElementById("forgotPasswordLink").addEventListener("click", function (e) {
   e.preventDefault();
 
   const email = prompt("Masukkan email Anda untuk reset password:");
-  if (!email) return;
+  if (!email || !email.includes("@")) {
+    tampilkanPesan("Email tidak valid.", "red");
+    return;
+  }
 
   auth.sendPasswordResetEmail(email)
     .then(() => {
-      document.getElementById("pesan").textContent = "Email reset password telah dikirim.";
-      document.getElementById("pesan").style.color = "green";
+      tampilkanPesan("Email reset password telah dikirim.", "green");
     })
     .catch((error) => {
-      document.getElementById("pesan").textContent = "Gagal mengirim email reset: " + error.message;
-      document.getElementById("pesan").style.color = "red";
+      let msg = "Gagal mengirim email reset: " + error.message;
+      tampilkanPesan(msg, "red");
     });
 });
+
+// Fungsi untuk menampilkan pesan
+function tampilkanPesan(teks, warna) {
+  const pesan = document.getElementById("pesan");
+  pesan.textContent = teks;
+  pesan.style.color = warna;
+}
