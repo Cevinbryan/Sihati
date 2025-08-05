@@ -2,38 +2,52 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Riwayat Konsumsi Listrik</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>History Pemakaian Bulanan</title>
   <link rel="stylesheet" href="history.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
-  <header class="top-bar">
-    <h1>Riwayat Konsumsi Listrik Bulanan</h1>
-  </header>
 
-  <main class="content">
-    <section class="filter-section">
-      <label for="yearSelect">Tahun:</label>
-      <select id="yearSelect"><option>Memuat...</option></select>
+  <h1>History Pemakaian Bulanan</h1>
 
-      <label for="monthSelect">Bulan:</label>
-      <select id="monthSelect"><option>Pilih Tahun Dulu</option></select>
+  <div class="filter">
+    <label for="selectTahun">Tahun:</label>
+    <select id="selectTahun"></select>
 
-      <button id="filterButton">Tampilkan Data</button>
-    </section>
+    <label for="selectBulan">Bulan:</label>
+    <select id="selectBulan"></select>
+  </div>
 
-    <section class="chart-section">
-      <h2>Grafik Konsumsi kWh dan Biaya</h2>
-      <canvas id="usageChart"></canvas>
-    </section>
-  </main>
+  <div class="grid">
+    <div>
+      <h3>Arus (A)</h3>
+      <canvas id="chartArus" height="200"></canvas>
+    </div>
+    <div>
+      <h3>Tegangan (V)</h3>
+      <canvas id="chartTegangan" height="200"></canvas>
+    </div>
+    <div>
+      <h3>Daya (Watt)</h3>
+      <canvas id="chartDaya" height="200"></canvas>
+    </div>
+    <div>
+      <h3>Energi (kWh)</h3>
+      <canvas id="chartEnergi" height="200"></canvas>
+    </div>
+  </div>
 
-  <footer class="footer">
-    <p>&copy; 2025 Smart Energy Monitoring - History</p>
-  </footer>
+  <div class="summary">
+    <p>Total Energi Bulanan: <span id="totalEnergy">0</span> kWh</p>
+    <p>Biaya Bulanan: Rp <span id="totalCost">0</span></p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script src="history.js"></script>
 </body>
