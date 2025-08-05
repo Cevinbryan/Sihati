@@ -1,73 +1,49 @@
 body {
-  margin: 0;
+  background: #222;
+  color: #eee;
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
-  color: #333;
+  margin: 0;
+  padding: 20px;
 }
 
-.top-bar {
-  background-color: #1565c0;
-  color: white;
-  padding: 20px;
+h1 {
   text-align: center;
-}
-
-.content {
-  padding: 20px;
-  max-width: 1000px;
-  margin: auto;
-}
-
-.filter-section {
-  background: white;
-  padding: 20px;
   margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
-.filter-section label {
-  font-weight: bold;
-}
-
-.filter-section select {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-.filter-section button {
-  padding: 8px 16px;
-  background-color: #1565c0;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.filter-section button:hover {
-  background-color: #0d47a1;
-}
-
-.chart-section {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.footer {
+.filter {
+  margin-bottom: 20px;
   text-align: center;
-  padding: 15px;
-  margin-top: 40px;
-  background-color: #0d47a1;
-  color: white;
+}
+
+select {
+  padding: 6px 10px;
+  margin: 0 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #333;
+  color: #eee;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+canvas {
+  background: #333;
+  border-radius: 8px;
+  width: 100% !important;
+  height: 200px !important;
+}
+
+.summary {
+  max-width: 900px;
+  margin: 30px auto 0;
+  font-size: 18px;
+  text-align: center;
 }
