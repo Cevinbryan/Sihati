@@ -1,31 +1,51 @@
 body {
-  background: #222;
-  color: #eee;
-  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom, #d1f9f0 0%, #ffffff 50%);
+  color: #2c3e50;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 20px;
+  min-height: 100vh;
 }
 
+/* === JUDUL UTAMA === */
 h1 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
+  font-size: 36px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1abc9c, #0e7f6e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* === FILTER / DROPDOWN === */
 .filter {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   text-align: center;
+  padding: 15px;
+  background: #fcfffe;
+  border-radius: 12px;
+  border: 1px solid #b8eee6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 select {
-  padding: 6px 10px;
+  padding: 10px 14px;
   margin: 0 10px;
   font-size: 16px;
-  border-radius: 4px;
-  border: 1px solid #444;
-  background: #333;
-  color: #eee;
+  border-radius: 8px;
+  border: 2px solid #16a085;
+  background: #e0f8f3;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+select:hover {
+  background: #c2f0e9;
+  cursor: pointer;
 }
 
+/* === GRID CHART === */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -35,15 +55,55 @@ select {
 }
 
 canvas {
-  background: #333;
-  border-radius: 8px;
+  background: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
   width: 100% !important;
-  height: 200px !important;
+  height: 250px !important;
+  border: 1px solid #b8eee6;
 }
 
+/* === RINGKASAN === */
 .summary {
   max-width: 900px;
-  margin: 30px auto 0;
+  margin: 40px auto 0;
   font-size: 18px;
   text-align: center;
+  padding: 20px;
+  background: #effcf9;
+  border-radius: 15px;
+  border: 1px solid #b8eee6;
+  color: #2c3e50;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* === TOMBOL === */
+#btnToggle {
+  display: block;
+  margin: 30px auto;
+  padding: 12px 30px;
+  font-size: 1.1em;
+  border: none;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #1abc9c, #0e7f6e);
+  color: white;
+  cursor: pointer;
+  width: 180px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(26, 188, 156, 0.3);
+  transition: all 0.3s ease;
+}
+#btnToggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 188, 156, 0.4);
+}
+#btnToggle.off {
+  background: linear-gradient(135deg, #e74c3c, #992d22);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
