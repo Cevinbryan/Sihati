@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let totalEnergiKwh = 0;
   let lastUpdateTime = Date.now();
   let lastSavedTime = 0;
-  const saveInterval = 60 * 1000;
+  const saveInterval = 60 * 1000; // 1 menit
 
   function buatChart(ctx, label, warna) {
     return new Chart(ctx, {
@@ -106,7 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
       btnToggle.classList.add(statusRelay.toLowerCase());
     }
 
-    // Simpan histori setiap 1 menit
+    // Simpan histori harian & bulanan setiap 1 menit
     if (Date.now() - lastSavedTime > saveInterval) {
       const now = new Date();
       const tahun = now.getFullYear();
@@ -114,14 +114,35 @@ document.addEventListener("DOMContentLoaded", function () {
       const tanggal = String(now.getDate()).padStart(2, '0');
       const jam = now.toTimeString().split(" ")[0].replace(/:/g, "-");
 
-      const path = `powerHistory/${tahun}/${bulan}/${tanggal}T${jam}`;
-      db.ref(path).set({
+      // === Simpan history harian ===
+      const dailyPath = `powerHistory/${tahun}/${bulan}/${tanggal}T${jam}`;
+      db.ref(dailyPath).set({
         current: arus,
         voltage: tegangan,
         watt: daya,
         kwh: totalEnergiKwh,
         timestamp: firebase.database.ServerValue.TIMESTAMP
       });
+
+      // === Simpan history bulanan ===
+      const monthlyPath = `monthlyHistory/${tahun}/${bulan}`;
+      db.ref(monthlyPath).once("value").then(snapshot => {
+        let monthlyData = snapshot.val() || { totalKwh: 0, totalWatt: 0, count: 0 };
+
+        monthlyData.totalKwh = parseFloat(monthlyData.totalKwh) + totalEnergiKwh;
+        monthlyData.totalWatt = parseFloat(monthlyData.totalWatt) + daya;
+        monthlyData.count = (monthlyData.count || 0) + 1;
+        monthlyData.avgWatt = monthlyData.totalWatt / monthlyData.count;
+
+        return db.ref(monthlyPath).set({
+          totalKwh: monthlyData.totalKwh,
+          totalWatt: monthlyData.totalWatt,
+          avgWatt: monthlyData.avgWatt,
+          count: monthlyData.count,
+          lastUpdate: firebase.database.ServerValue.TIMESTAMP
+        });
+      });
+
       lastSavedTime = Date.now();
     }
   });
