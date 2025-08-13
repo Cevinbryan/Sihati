@@ -1,6 +1,6 @@
 // ==== Config Firebase ====
 const firebaseConfig = {
-  apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnqYzjYt_8kqgM",
+  apiKey: "AIzaSyA9Te56YLPP6XjGcRTAtQnYzjYt_8kqgM",
   authDomain: "smart-switch-pbl-in2024-db81c.firebaseapp.com",
   databaseURL: "https://smart-switch-pbl-in2024-db81c-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "smart-switch-pbl-in2024-db81c",
@@ -20,7 +20,7 @@ const totalCostElem = document.getElementById("totalCost");
 // Tarif listrik per kWh
 const tarifPerKwh = 1358.82;
 
-// Setup Chart.js
+// Fungsi buat chart
 function buatChart(ctx, label, warna) {
   return new Chart(ctx, {
     type: "line",
@@ -41,14 +41,10 @@ function buatChart(ctx, label, warna) {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true },
-        x: {
-          ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10 }
-        }
+        y: { beginAtZero: true, ticks: { color: "#eee" } },
+        x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 10, color: "#eee" } }
       },
-      plugins: {
-        legend: { labels: { color: "#eee" } }
-      }
+      plugins: { legend: { labels: { color: "#eee" } } }
     }
   });
 }
@@ -58,7 +54,7 @@ const chartTegangan = buatChart(document.getElementById("chartTegangan").getCont
 const chartDaya = buatChart(document.getElementById("chartDaya").getContext("2d"), "Daya (Watt)", "rgb(255, 165, 0)");
 const chartEnergi = buatChart(document.getElementById("chartEnergi").getContext("2d"), "Energi (kWh)", "rgb(128, 0, 128)");
 
-// Fungsi nama bulan
+// Nama bulan
 function namaBulan(kodeBulan) {
   const bulan = {
     "01": "Januari", "02": "Februari", "03": "Maret", "04": "April",
@@ -68,20 +64,20 @@ function namaBulan(kodeBulan) {
   return bulan[kodeBulan] || kodeBulan;
 }
 
-// Ambil list tahun dari Firebase
+// Ambil list tahun
 async function loadTahunFromFirebase() {
-  const snapshot = await db.ref("history").once("value");
+  const snapshot = await db.ref("powerHistory").once("value");
   const data = snapshot.val();
   if (!data) return [];
-  return Object.keys(data).sort((a,b) => b - a); // Descending
+  return Object.keys(data).sort((a, b) => b - a);
 }
 
-// Ambil list bulan dari tahun tertentu
+// Ambil list bulan
 async function loadBulanFromFirebase(tahun) {
-  const snapshot = await db.ref(`history/${tahun}`).once("value");
+  const snapshot = await db.ref(`powerHistory/${tahun}`).once("value");
   const data = snapshot.val();
   if (!data) return [];
-  return Object.keys(data).sort(); // Ascending
+  return Object.keys(data).sort();
 }
 
 // Isi dropdown tahun & bulan
@@ -100,7 +96,7 @@ async function populateDropdowns() {
 
   if (tahunList.length === 0) return;
 
-  selectTahun.value = tahunList[0];
+  selectTahun.value = tahunList[0]; // default: terbaru
 
   const bulanList = await loadBulanFromFirebase(selectTahun.value);
   bulanList.forEach(bulan => {
@@ -110,10 +106,10 @@ async function populateDropdowns() {
     selectBulan.appendChild(opt);
   });
 
-  if (bulanList.length > 0) selectBulan.value = bulanList[0];
+  if (bulanList.length > 0) selectBulan.value = bulanList[0]; // default: terbaru
 }
 
-// Reset grafik dan summary
+// Reset grafik & summary
 function resetCharts() {
   [chartArus, chartTegangan, chartDaya, chartEnergi].forEach(chart => {
     chart.data.labels = [];
@@ -126,21 +122,18 @@ function resetCharts() {
 
 let historyRef = null;
 
-// Load data realtime sesuai tahun dan bulan
+// Load data realtime sesuai bulan & tahun (struktur DDTHH-MM-SS)
 function loadDataHistoryRealtime(tahun, bulan) {
   if (historyRef) historyRef.off();
-
   resetCharts();
 
-  historyRef = db.ref(`history/${tahun}/${bulan}`);
+  historyRef = db.ref(`powerHistory/${tahun}/${bulan}`);
   historyRef.on("value", snapshot => {
     const data = snapshot.val();
     if (!data) {
       resetCharts();
       return;
     }
-
-    const tanggalKeys = Object.keys(data).sort((a,b) => Number(a) - Number(b));
 
     const labels = [];
     const arusData = [];
@@ -150,16 +143,34 @@ function loadDataHistoryRealtime(tahun, bulan) {
 
     let totalEnergy = 0;
 
-    tanggalKeys.forEach(tgl => {
-      const d = data[tgl];
-      labels.push(tgl);
-      arusData.push(d.current ? parseFloat(d.current) : 0);
-      teganganData.push(d.voltage ? parseFloat(d.voltage) : 0);
-      dayaData.push(d.watt ? parseFloat(d.watt) : 0);
-      energiData.push(d.kwh ? parseFloat(d.kwh) : 0);
-      totalEnergy += d.kwh ? parseFloat(d.kwh) : 0;
-    });
+    Object.keys(data)
+      .filter(k => k !== "totalKwh" && k !== "totalCost")
+      .sort((a, b) => {
+        const tsA = data[a]?.timestamp || 0;
+        const tsB = data[b]?.timestamp || 0;
+        return tsA - tsB;
+      })
+      .forEach(key => {
+        const d = data[key] || {};
 
+        if (d.timestamp) {
+          const dateObj = new Date(d.timestamp);
+          const jam = String(dateObj.getHours()).padStart(2, "0");
+          const menit = String(dateObj.getMinutes()).padStart(2, "0");
+          labels.push(`${jam}:${menit}`);
+        } else {
+          labels.push(key);
+        }
+
+        arusData.push(Number(d.current) || 0);
+        teganganData.push(Number(d.voltage) || 0);
+        dayaData.push(Number(d.watt) || 0);
+        energiData.push(Number(d.kwh) || 0);
+
+        totalEnergy += Number(d.kwh) || 0;
+      });
+
+    // Update chart
     chartArus.data.labels = labels;
     chartArus.data.datasets[0].data = arusData;
     chartArus.update();
@@ -176,16 +187,25 @@ function loadDataHistoryRealtime(tahun, bulan) {
     chartEnergi.data.datasets[0].data = energiData;
     chartEnergi.update();
 
-    totalEnergyElem.textContent = totalEnergy.toFixed(4);
-    totalCostElem.textContent = (totalEnergy * tarifPerKwh).toFixed(2);
+    // Total energy & cost
+    if (typeof data.totalKwh === "number") {
+      totalEnergyElem.textContent = data.totalKwh.toFixed(4);
+    } else {
+      totalEnergyElem.textContent = totalEnergy.toFixed(4);
+    }
+    if (typeof data.totalCost === "number") {
+      totalCostElem.textContent = data.totalCost.toFixed(2);
+    } else {
+      totalCostElem.textContent = (totalEnergy * tarifPerKwh).toFixed(2);
+    }
   });
 }
 
-// Event dropdown tahun berubah
+// Event dropdown
 selectTahun.addEventListener("change", async () => {
   const bulanList = await loadBulanFromFirebase(selectTahun.value);
-
   selectBulan.innerHTML = "";
+
   bulanList.forEach(bulan => {
     const opt = document.createElement("option");
     opt.value = bulan;
@@ -201,7 +221,6 @@ selectTahun.addEventListener("change", async () => {
   }
 });
 
-// Event dropdown bulan berubah
 selectBulan.addEventListener("change", () => {
   loadDataHistoryRealtime(selectTahun.value, selectBulan.value);
 });
